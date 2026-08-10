@@ -1,0 +1,30 @@
+﻿@model Scentify.Models.Marca
+@{
+    ViewData["Title"] = "Eliminar Marca";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2 class="mb-4 text-center text-danger">@ViewData["Title"]</h2>
+
+    <div class="bg-white p-4 shadow rounded">
+        <h5 class="mb-3">¿Está seguro de que desea eliminar esta marca?</h5>
+
+        <dl class="row mb-4">
+            <dt class="col-sm-4">ID</dt>
+            <dd class="col-sm-8">@Model.MarcaID</dd>
+
+            <dt class="col-sm-4">Nombre</dt>
+            <dd class="col-sm-8">@Model.Nombre</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.MarcaID" />
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </div>
+        </form>
+    </div>
+</div>

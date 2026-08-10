@@ -1,0 +1,44 @@
+﻿@model Scentify.Models.Usuario
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm rounded-4 p-4 border-danger-subtle">
+        <h2 class="text-center text-danger fw-bold mb-4">
+            <i class="fas fa-user-times me-2"></i>Eliminar Usuario
+        </h2>
+
+        <p class="text-center lead mb-4">¿Está seguro que desea eliminar este usuario?</p>
+
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-Scentify">
+                <dl class="row bg-light rounded p-3 border">
+                    <dt class="col-sm-4 fw-semibold">Nombre</dt>
+                    <dd class="col-sm-8">@($"{Model.Nombre} {Model.Apellido1} {Model.Apellido2}")</dd>
+
+                    <dt class="col-sm-4 fw-semibold">Correo</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4 fw-semibold">Rol</dt>
+                    <dd class="col-sm-8">@Model.Rol</dd>
+                </dl>
+            </div>
+        </div>
+
+        <form asp-action="Delete" method="post" class="text-center">
+            <input type="hidden" asp-for="UsuarioID" />
+            <button type="submit" class="btn btn-danger btn-lg px-4 me-3 shadow-sm">
+                <i class="fas fa-trash-alt me-2"></i>Eliminar
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-lg px-4 shadow-sm">
+                <i class="fas fa-times me-2"></i>Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+}

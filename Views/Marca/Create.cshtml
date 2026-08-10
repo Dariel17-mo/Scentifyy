@@ -1,0 +1,29 @@
+﻿@model Scentify.Models.Marca
+@{
+    ViewData["Title"] = "Crear Marca";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2 class="mb-4 text-center">@ViewData["Title"]</h2>
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+    <form asp-action="Create" method="post" class="bg-white p-4 shadow rounded">
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label text-uppercase small text-muted">Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar Marca</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

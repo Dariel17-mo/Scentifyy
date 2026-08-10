@@ -1,0 +1,158 @@
+﻿@model List<Scentify.Models.DetallePedido>
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Detalle del Pedido";
+    var total = Model.Sum(d => d.Subtotal);
+    int pedidoId = Model.Any() ? Model.First().PedidoID : 0;
+}
+
+<style>
+    /* Estilos Modal Detalle Pedido Lujo */
+    .detalle-lujo-container {
+        color: var(--scent-white, #F8F4EE);
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .detalle-lujo-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+    }
+
+    .detalle-lujo-pedido {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        margin-top: 0.5rem;
+    }
+
+    .table-detalle-lujo {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-detalle-lujo th {
+        background: transparent !important;
+        color: var(--gold-light, #E8D5A3) !important;
+        font-size: 0.65rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.3) !important;
+        font-weight: 500;
+        padding: 1rem 0.5rem;
+        text-align: center;
+    }
+
+    .table-detalle-lujo td {
+        background: transparent !important;
+        color: var(--scent-white, #F8F4EE) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        vertical-align: middle;
+        padding: 1.2rem 0.5rem;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    .detalle-img-box {
+        width: 65px;
+        height: 65px;
+        border: 1px solid rgba(201, 168, 76, 0.2);
+        padding: 0.2rem;
+        background: rgba(255, 255, 255, 0.02);
+        margin: 0 auto;
+    }
+
+    .detalle-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .detalle-total-row td {
+        border-top: 1px solid rgba(201, 168, 76, 0.3) !important;
+        border-bottom: none !important;
+        font-weight: 400;
+        font-size: 1.1rem;
+        padding-top: 1.5rem;
+    }
+
+    .detalle-total-label {
+        color: rgba(248, 244, 238, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.8rem;
+    }
+
+    .detalle-total-val {
+        color: var(--gold, #C9A84C);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+    }
+</style>
+
+<div class="detalle-lujo-container">
+    @if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+    {
+        <div class="text-center py-4" style="color:rgba(201,168,76,0.8);font-style:italic;">
+            @ViewBag.Mensaje
+        </div>
+    }
+    else
+    {
+        <div class="detalle-lujo-header">
+            <span style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(248,244,238,0.4);">
+                Resumen de su colección
+            </span>
+            <div class="detalle-lujo-pedido">Ticket #@pedidoId</div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-detalle-lujo mx-auto">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Producto</th>
+                        <th>Imagen</th>
+                        <th>Cant.</th>
+                        <th>P. Unitario</th>
+                        <th>Descuento</th>
+                        <th style="text-align:right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="text-align:left;">@item.ProductoNombre</td>
+                            <td>
+                                <div class="detalle-img-box">
+                                    <img src="@item.ImagenURL" alt="Producto" class="detalle-img" />
+                                </div>
+                            </td>
+                            <td>@item.Cantidad</td>
+                            <td>₡@item.PrecioUnitario.ToString("N2")</td>
+                            <td style="color:rgba(201,168,76,0.8);">
+                                @(item.Descuento > 0 ? "-₡" + item.Descuento.ToString("N2") : "—")
+                            </td>
+                            <td style="text-align:right;color:var(--gold,#C9A84C);">₡@item.Subtotal.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="detalle-total-row">
+                        <td colspan="5" style="text-align:right;padding-right:1rem;">
+                            <span class="detalle-total-label">Inversión Final:</span>
+                        </td>
+                        <td style="text-align:right;">
+                            <span class="detalle-total-val">₡@total.ToString("N2")</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+</div>

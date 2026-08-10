@@ -1,0 +1,57 @@
+﻿@model List<Scentify.Models.DetallePedido>
+
+@{
+    ViewData["Title"] = "Detalle del Pedido";
+    var total = Model.Sum(d => d.Subtotal);
+}
+
+<h2 class="mt-4">Detalle del Pedido</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+{
+    <div class="alert alert-warning text-center">
+        @ViewBag.Mensaje
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-hover align-middle mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Imagen</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Descuento</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductoNombre</td>
+                    <td>
+                        <img src="@item.ImagenURL" alt="Producto" class="img-thumbnail" style="height: 60px;" />
+                    </td>
+                    <td>@item.Cantidad</td>
+                    <td>₡@item.PrecioUnitario.ToString("N2")</td>
+                    <td>₡@item.Descuento.ToString("N2")</td>
+                    <td>₡@item.Subtotal.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="fw-bold">
+                <td colspan="5" class="text-end">Total:</td>
+                <td>₡@total.ToString("N2")</td>
+            </tr>
+        </tfoot>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-controller="Pedido" asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver a Pedidos
+    </a>
+</div>

@@ -1,0 +1,344 @@
+@model List<Scentify.Models.CarritoCompra>
+@{
+    ViewData["Title"] = "Carrito de Compras";
+}
+
+<style>
+    /* Estilos Locales de Lujo para Carrito */
+    .cart-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    .cart-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.8rem;
+        font-weight: 300;
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 2rem;
+        letter-spacing: 0.1em;
+    }
+    .cart-table th {
+        background: transparent !important;
+        color: var(--gold-light) !important;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--glass-border) !important;
+        font-weight: 500;
+        padding-bottom: 1rem;
+    }
+    .cart-table td {
+        background: transparent !important;
+        color: var(--scent-white) !important;
+        border-bottom: 1px solid rgba(201,168,76,0.1) !important;
+        vertical-align: middle;
+        padding: 1.2rem 0.5rem;
+    }
+    .cart-img {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+        border: 1px solid var(--glass-border);
+        padding: 0.2rem;
+        background: rgba(255,255,255,0.02);
+    }
+    .cart-product-name {
+        font-weight: 400;
+        font-size: 0.95rem;
+        letter-spacing: 0.05em;
+    }
+    .price-strike {
+        text-decoration: line-through;
+        color: rgba(248,244,238,0.4);
+        font-size: 0.8rem;
+    }
+    .price-discount {
+        color: var(--gold);
+        font-size: 0.85rem;
+    }
+    .price-final {
+        color: var(--scent-white);
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    .btn-cart-action {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--gold);
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s;
+    }
+    .btn-cart-action:hover {
+        background: rgba(201,168,76,0.1);
+        border-color: var(--gold);
+        color: var(--gold-light);
+    }
+    .btn-cart-remove {
+        color: rgba(220,53,69,0.8);
+        border-color: rgba(220,53,69,0.3);
+    }
+    .btn-cart-remove:hover {
+        background: rgba(220,53,69,0.1);
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    .cart-input-qty {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--scent-white);
+        text-align: center;
+        width: 60px;
+    }
+    .cart-input-qty:focus {
+        background: rgba(255,255,255,0.08);
+        border-color: var(--gold);
+        color: var(--scent-white);
+        outline: none;
+        box-shadow: none;
+    }
+    .cart-summary {
+        background: rgba(201,168,76,0.03);
+        border: 1px solid var(--glass-border);
+        padding: 2rem;
+        margin-top: 2rem;
+        border-radius: 4px;
+    }
+    .cart-total-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+        color: var(--gold);
+    }
+    .cart-input {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--glass-border);
+        color: var(--scent-white);
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .cart-input:focus {
+        background: rgba(255,255,255,0.06);
+        border-color: var(--gold);
+        color: var(--scent-white);
+        outline: none;
+        box-shadow: none;
+    }
+    .cart-input::placeholder {
+        color: rgba(248,244,238,0.3);
+    }
+    .btn-checkout {
+        background: var(--gold);
+        color: var(--scent-black);
+        border: none;
+        padding: 0.9rem 2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-size: 0.8rem;
+        width: 100%;
+        transition: background 0.3s;
+        border-radius: 4px;
+    }
+    .btn-checkout:hover {
+        background: var(--gold-light);
+    }
+    /* Estilos alertas Bootstrap dark */
+    .alert-success {
+        background-color: rgba(25,135,84,0.1);
+        border-color: rgba(25,135,84,0.3);
+        color: #75b798;
+    }
+    .alert-danger {
+        background-color: rgba(220,53,69,0.1);
+        border-color: rgba(220,53,69,0.3);
+        color: #ea868f;
+    }
+    .alert-info {
+        background-color: rgba(201,168,76,0.1);
+        border-color: rgba(201,168,76,0.3);
+        color: var(--gold);
+    }
+    .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+</style>
+
+<div class="cart-container">
+    <h2 class="cart-title">Tu Colección</h2>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="mensaje-alerta">
+            @TempData["Mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="error-alerta">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-4">
+            <i class="fas fa-shopping-bag mb-3" style="font-size:2rem;color:var(--gold);"></i><br/>
+            Tu carrito está vacío. <a href="/Producto" style="color:var(--gold);text-decoration:underline;">Descubre nuestras fragancias.</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle cart-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                    <th>Precio unitario</th>
+                        <th>Cantidad</th>
+                    <th>Subtotal sin descuento</th>
+                    <th>Descuento total</th>
+                    <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var precioOriginal = item.Precio;
+                        var descuentoUnitario = item.Descuento;
+                        var cantidad = item.Cantidad;
+                        var subtotalSinDescuento = precioOriginal * cantidad;
+                        var totalDescuento = descuentoUnitario * cantidad;
+                        var subtotalConDescuento = subtotalSinDescuento - totalDescuento;
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="@Url.Content(string.IsNullOrEmpty(item.ImagenURL) ? "~/Images/no-img.png" : item.ImagenURL)"
+                                         alt="@item.ProductoNombre" class="cart-img" />
+                                    <span class="cart-product-name">@item.ProductoNombre</span>
+                                </div>
+                            </td>
+                            <td>
+                                @if (descuentoUnitario > 0)
+                                {
+                                    <div class="price-strike">@precioOriginal.ToString("'₡'#,0")</div>
+                                    <div class="price-discount">-@descuentoUnitario.ToString("'₡'#,0") c/u</div>
+                                }
+                                <div class="price-final">@((precioOriginal - descuentoUnitario).ToString("'₡'#,0"))</div>
+                            </td>
+                            <td>
+                                <form asp-action="Actualizar" method="post" class="d-flex gap-2 align-items-center">
+                                    <input type="hidden" name="productoId" value="@item.ProductoID" />
+                                    <input type="number" name="cantidad" value="@cantidad"
+                                           class="form-control form-control-sm cart-input-qty" min="1" />
+                                    <button type="submit" class="btn btn-sm btn-cart-action">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                @if (descuentoUnitario > 0)
+                                {
+                                    <div class="price-strike" style="font-size:0.75rem;">@subtotalSinDescuento.ToString("'₡'#,0")</div>
+                                }
+                                <div class="price-final" style="color:var(--gold);">@subtotalConDescuento.ToString("'₡'#,0")</div>
+                            </td>
+                            <td>
+                                <form asp-action="Eliminar" method="post">
+                                    <input type="hidden" name="productoId" value="@item.ProductoID" />
+                                    <button type="submit" class="btn btn-sm btn-cart-action btn-cart-remove" title="Eliminar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        var totalFinal = Model.Sum(p => (p.Precio - p.Descuento) * p.Cantidad);
+
+        <div class="row justify-content-end">
+            <div class="col-md-6 col-lg-5">
+                <div class="cart-summary">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4" style="border-color:var(--glass-border) !important;">
+                        <span style="font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-light);">Total a pagar</span>
+                        <span class="cart-total-text">@totalFinal.ToString("'₡'#,0")</span>
+                    </div>
+
+                    <form asp-action="Confirmar" method="post">
+                        <input type="text" name="direccionEnvio" class="form-control cart-input mb-3" placeholder="Dirección de envío completa" required />
+                        <input type="text" name="telefonoContacto" class="form-control cart-input mb-3" placeholder="Teléfono de contacto" required />
+                        <textarea name="notas" placeholder="Instrucciones especiales para la entrega (opcional)" class="form-control cart-input mb-3" rows="2"></textarea>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" style="color:var(--gold-light); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em;">Método de Pago</label>
+                            <select name="metodoPago" id="metodoPagoSelect" class="form-select cart-input" style="background-color:rgba(10,10,10,0.8);" required onchange="toggleCardFields()">
+                                <option value="">Seleccione un método...</option>
+                                <option value="Tarjeta">Tarjeta de Crédito / Débito</option>
+                                <option value="SINPE MOVIL">SINPE MÓVIL</option>
+                                <option value="PayPal">PayPal</option>
+                                <option value="Stripe">Stripe</option>
+                            </select>
+                        </div>
+
+                        <div id="cardFields" style="display:none; background:rgba(255,255,255,0.02); padding:1rem; border:1px solid var(--glass-border); border-radius:4px; margin-bottom:1rem;">
+                            <input type="text" class="form-control cart-input mb-2" placeholder="Número de Tarjeta" />
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="text" class="form-control cart-input" placeholder="MM/AA" />
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control cart-input" placeholder="CVV" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            function toggleCardFields() {
+                                var method = document.getElementById("metodoPagoSelect").value;
+                                var cardFields = document.getElementById("cardFields");
+                                if (method === "Tarjeta") {
+                                    cardFields.style.display = "block";
+                                } else {
+                                    cardFields.style.display = "none";
+                                }
+                            }
+                        </script>
+
+                        <button type="submit" class="btn-checkout mt-2">Completar Pedido <i class="fas fa-arrow-right ms-2"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            const mensaje = document.getElementById("mensaje-alerta");
+            const error = document.getElementById("error-alerta");
+
+            if (mensaje) {
+                mensaje.classList.remove("show");
+                mensaje.classList.add("fade");
+            }
+
+            if (error) {
+                error.classList.remove("show");
+                error.classList.add("fade");
+            }
+        }, 4000); // 4000 ms = 4 segundos
+    </script>
+}

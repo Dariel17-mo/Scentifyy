@@ -1,0 +1,44 @@
+﻿@model Scentify.Models.Resena
+
+@{
+    ViewData["Title"] = "Editar Reseña";
+}
+
+<h2>Editar Reseña</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ResenaID" />
+    <input type="hidden" asp-for="ProductoID" />
+    <input type="hidden" asp-for="UsuarioID" />
+
+    <div class="mb-3">
+        <label class="form-label">Producto:</label>
+        <div class="form-control-plaintext">@Model.ProductoNombre</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Usuario:</label>
+        <div class="form-control-plaintext">@Model.UsuarioNombre (@Model.Email)</div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Calificacion" class="form-label"></label>
+        <input asp-for="Calificacion" type="number" class="form-control" min="1" max="5" />
+        <span asp-validation-for="Calificacion" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Comentario" class="form-label"></label>
+        <textarea asp-for="Comentario" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Comentario" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

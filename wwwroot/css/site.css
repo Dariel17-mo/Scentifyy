@@ -1,0 +1,67 @@
+﻿/* Franja superior */
+.top-bar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+    padding: 0.5rem 1rem;
+}
+
+    .top-bar i {
+        color: #d63384; /* color del �cono de env�o */
+    }
+
+    .top-bar .fa-phone {
+        color: #0d6efd; /* azul Bootstrap para el �cono del tel�fono */
+    }
+
+    .top-bar a {
+        color: #000;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .top-bar .badge {
+        font-size: 0.7rem;
+        padding: 0.35em 0.5em;
+    }
+
+/* Navbar */
+.navbar-dark .navbar-nav .nav-link {
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+}
+
+    .navbar-dark .navbar-nav .nav-link:hover {
+        color: #ffc107;
+    }
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .navbar-brand img {
+        height: 35px;
+    }
+
+/* Buscador */
+form[role="search"] input[type="search"] {
+    font-size: 0.85rem;
+}
+
+form[role="search"] button {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+}
+
+.footer {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #6c757d; /* gris suave */
+    background-color: #f8f9fa; /* fondo claro */
+    box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+}

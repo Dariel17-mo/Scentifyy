@@ -1,0 +1,195 @@
+﻿@model Scentify.Models.Usuario
+
+@{
+    ViewBag.Title = "Registrar Usuario";
+}
+
+<style>
+    /* ── ESTILOS LUXURY PANEL ADMIN - CREAR ── */
+    .lux-form-container {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--scent-white, #F8F4EE);
+        max-width: 900px;
+        margin: 3rem auto;
+        background: rgba(10, 10, 10, 0.95);
+        border: 1px solid var(--glass-border, rgba(201, 168, 76, 0.22));
+        border-radius: 4px;
+        padding: 2.5rem 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .lux-form-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+        padding-bottom: 1rem;
+    }
+
+    .lux-label {
+        color: var(--gold-light, #E8D5A3);
+        font-size: 0.70rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+        display: block;
+    }
+
+    .lux-input,
+    .lux-select {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--glass-border);
+        color: var(--scent-white);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        padding: 0.8rem 1rem;
+        width: 100%;
+        border-radius: 2px;
+        transition: all 0.3s;
+    }
+
+    .lux-input:focus,
+    .lux-select:focus {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--gold);
+        outline: none;
+        box-shadow: none;
+    }
+
+    .lux-select option {
+        background: var(--scent-black, #080808);
+        color: var(--scent-white);
+    }
+
+    .lux-btn-primary {
+        background: var(--gold);
+        color: var(--scent-black, #080808);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        font-weight: 500;
+        transition: all 0.3s;
+        border-radius: 2px;
+    }
+
+    .lux-btn-primary:hover {
+        background: var(--gold-light);
+        opacity: 0.9;
+    }
+
+    .lux-btn-secondary {
+        background: transparent;
+        color: rgba(248, 244, 238, 0.6);
+        border: 1px solid rgba(248, 244, 238, 0.2);
+        padding: 0.8rem 1.5rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        text-decoration: none;
+        border-radius: 2px;
+    }
+
+    .lux-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--scent-white);
+        border-color: rgba(248, 244, 238, 0.5);
+    }
+</style>
+
+<div class="lux-form-container">
+    <h2 class="lux-form-title">
+        Registrar Usuario
+    </h2>
+
+    <form asp-action="Create" method="post" class="row g-4">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Identificacion" class="lux-label">Identificación</label>
+            <input asp-for="Identificacion" class="lux-input" placeholder="Ej: 123456789" autocomplete="off" />
+            <span asp-validation-for="Identificacion" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Nombre" class="lux-label">Nombre</label>
+            <input asp-for="Nombre" class="lux-input" placeholder="Nombre" autocomplete="off" />
+            <span asp-validation-for="Nombre" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Apellido1" class="lux-label">Primer Apellido</label>
+            <input asp-for="Apellido1" class="lux-input" placeholder="Primer Apellido" autocomplete="off" />
+            <span asp-validation-for="Apellido1" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Apellido2" class="lux-label">Segundo Apellido</label>
+            <input asp-for="Apellido2" class="lux-input" placeholder="Segundo Apellido" autocomplete="off" />
+            <span asp-validation-for="Apellido2" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="FechaNacimiento" class="lux-label">Fecha de Nacimiento</label>
+            <input asp-for="FechaNacimiento" type="date" class="lux-input" />
+            <span asp-validation-for="FechaNacimiento" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="DocumentoIdentidad" class="lux-label">Tipo de Documento</label>
+            <select asp-for="DocumentoIdentidad" class="lux-select">
+                <option value="">Seleccione un tipo</option>
+                <option value="Cédula Nacional Costarricense">Cédula Nacional Costarricense</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="DIMEX">DIMEX</option>
+                <option value="Otro">Otro</option>
+            </select>
+            <span asp-validation-for="DocumentoIdentidad" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Email" class="lux-label">Correo Electrónico</label>
+            <input asp-for="Email" type="email" class="lux-input" placeholder="correo@ejemplo.com" autocomplete="off" />
+            <span asp-validation-for="Email" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Contrasena" class="lux-label">Contraseña</label>
+            <input asp-for="Contrasena" type="password" class="lux-input" placeholder="••••••••" autocomplete="off" />
+            <span asp-validation-for="Contrasena" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-md-12 mb-3">
+            <label asp-for="Rol" class="lux-label">Rol</label>
+            <select asp-for="Rol" class="lux-select">
+                <option value="Cliente">Cliente</option>
+                <option value="Administrador">Administrador</option>
+            </select>
+            <span asp-validation-for="Rol" class="text-danger small mt-2 d-block"
+                style="color:#d9534f !important;"></span>
+        </div>
+
+        <div class="col-12 d-flex justify-content-between mt-5 pt-2"
+            style="border-top: 1px solid rgba(255,255,255,0.05);">
+            <a asp-action="Index" asp-controller="Usuario" class="lux-btn-secondary">Cancelar</a>
+            <button type="submit" class="lux-btn-primary">Registrar Usuario</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+}

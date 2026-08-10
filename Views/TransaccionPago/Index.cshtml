@@ -1,0 +1,175 @@
+﻿@model List<Scentify.Models.TransaccionPago>
+
+@{
+    ViewData["Title"] = "Transacciones de Pago";
+}
+
+
+
+<style>
+    /* ── ESTILOS LUXURY PANEL ADMIN - PAGOS ── */
+    .lux-container {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--scent-white, #F8F4EE);
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .lux-header-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        font-weight: 300;
+        margin-bottom: 0;
+    }
+    .lux-btn-create {
+        background: transparent;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    .lux-btn-create:hover {
+        background: rgba(201,168,76,0.1);
+        color: var(--gold-light, #E8D5A3);
+    }
+    .lux-alert {
+        background: rgba(25,135,84,0.1);
+        border: 1px solid rgba(25,135,84,0.3);
+        color: #75b798;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+    .lux-alert-info {
+        background: rgba(13,202,240,0.1);
+        border: 1px solid rgba(13,202,240,0.3);
+        color: #3dd5f3;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+
+    /* Tabla Lux */
+    .lux-table-wrapper {
+        background: rgba(255,255,255,0.015);
+        border: 1px solid var(--glass-border, rgba(201,168,76,0.22));
+        border-radius: 4px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .lux-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .lux-table th {
+        background: transparent !important;
+        color: var(--gold) !important;
+        font-size: 0.70rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-weight: 500;
+        border-bottom: 1px solid var(--glass-border) !important;
+        padding: 1.2rem 1rem;
+    }
+    .lux-table td {
+        background: transparent !important;
+        color: var(--scent-white) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+        padding: 1rem;
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+
+    /* Badges Lujo */
+    .lux-badge-success {
+        background: rgba(25,135,84,0.1);
+        color: #75b798;
+        border: 1px solid rgba(25,135,84,0.3);
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        padding: 0.4rem 0.8rem;
+        text-transform: uppercase;
+        border-radius: 2px;
+    }
+    .lux-badge-warning {
+        background: rgba(255,193,7,0.1);
+        color: #ffda6a;
+        border: 1px solid rgba(255,193,7,0.3);
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        padding: 0.4rem 0.8rem;
+        text-transform: uppercase;
+        border-radius: 2px;
+    }
+    .lux-badge-secondary {
+        background: rgba(108,117,125,0.1);
+        color: #adb5bd;
+        border: 1px solid rgba(108,117,125,0.3);
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        padding: 0.4rem 0.8rem;
+        text-transform: uppercase;
+        border-radius: 2px;
+    }
+</style>
+
+<div class="lux-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color:var(--glass-border) !important;">
+        <h2 class="lux-header-title">Transacciones de Pago Registradas</h2>
+        <a asp-action="Create" class="btn lux-btn-create">
+            <i class="fas fa-plus me-2"></i>Registrar nuevo pago
+        </a>
+    </div>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert lux-alert text-center">@TempData["Mensaje"]</div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="lux-table-wrapper table-responsive">
+            <table class="table align-middle text-center lux-table">
+                <thead>
+                    <tr>
+                        <th># Transacción</th>
+                        <th># Pedido</th>
+                        <th>Método</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pago in Model)
+                    {
+                        <tr>
+                            <td style="color:var(--gold-light);">@pago.TransaccionPagoID</td>
+                            <td style="font-weight:500;">#@pago.PedidoID</td>
+                            <td style="font-size:0.8rem; letter-spacing:0.05em; color:rgba(248,244,238,0.8);">@pago.MetodoPago</td>
+                            <td><span style="color:#75b798; font-weight:500;">₡@pago.Monto.ToString("N2")</span></td>
+                            <td>
+                                <span class="@(pago.Estado == "Completado" ? "lux-badge-success" : pago.Estado == "Pendiente" ? "lux-badge-warning" : "lux-badge-secondary")">
+                                    @pago.Estado
+                                </span>
+                            </td>
+                            <td style="font-size:0.8rem; color:rgba(248,244,238,0.6);">@pago.FechaCreacion.ToString("dd/MM/yyyy hh:mm tt")</td>
+                            <td><code style="color:var(--gold); background:rgba(201,168,76,0.1); padding:0.2rem 0.4rem; border-radius:2px;">@(string.IsNullOrWhiteSpace(pago.CodigoTransaccion) ? "-" : pago.CodigoTransaccion)</code></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert lux-alert-info text-center mt-4">No hay transacciones de pago registradas aún.</div>
+    }
+</div>

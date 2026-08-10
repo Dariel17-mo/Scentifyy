@@ -1,0 +1,133 @@
+﻿@model IEnumerable<Scentify.Models.Resena>
+
+@{
+    ViewData["Title"] = "Listado de Reseñas";
+    var usuarioActualID = Context.Session.GetInt32("UsuarioID");
+    var rol = Context.Session.GetString("Perfil")?.ToUpper();
+}
+
+<style>
+    /* ── ESTILOS LUXURY PANEL ADMIN ── */
+    .lux-container {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--scent-white, #F8F4EE);
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .lux-header-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        font-weight: 300;
+        margin-bottom: 0;
+    }
+    .lux-btn-create {
+        background: transparent;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        transition: all 0.3s;
+    }
+    .lux-btn-create:hover {
+        background: rgba(201,168,76,0.1);
+        color: var(--gold-light, #E8D5A3);
+    }
+    .lux-table-wrapper {
+        background: rgba(255,255,255,0.015);
+        border: 1px solid var(--glass-border);
+        border-radius: 4px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .lux-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .lux-table th {
+        background: transparent !important;
+        color: var(--gold) !important;
+        font-size: 0.70rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-weight: 500;
+        border-bottom: 1px solid var(--glass-border) !important;
+        padding: 1.2rem 1rem;
+    }
+    .lux-table td {
+        background: transparent !important;
+        color: var(--scent-white) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+        padding: 1rem;
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+</style>
+
+<div class="lux-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color:var(--glass-border) !important;">
+        <h2 class="lux-header-title">Listado de Reseñas</h2>
+        <a asp-action="Create" class="btn lux-btn-create">
+            <i class="fas fa-pen me-2"></i> Crear Nueva Reseña
+        </a>
+    </div>
+
+    <div class="lux-table-wrapper table-responsive">
+        <table class="lux-table align-middle">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th style="text-align:left;">Producto</th>
+                    <th style="text-align:left;">Usuario</th>
+                    <th class="text-center">Calificación</th>
+                    <th style="text-align:left;">Comentario</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                        <tr>
+                            <td class="text-center">@item.ResenaID</td>
+                            <td style="text-align:left; color:var(--gold-light);">@item.ProductoNombre</td>
+                            <td style="text-align:left;">
+                                <div style="font-weight:500;">@item.UsuarioNombre</div>
+                                <div style="font-size:0.75rem; color:rgba(248,244,238,0.5);">@item.Email</div>
+                            </td>
+                            <td class="text-center">
+                                <span style="background:rgba(201,168,76,0.1); color:var(--gold); padding:0.3rem 0.6rem; border:1px solid rgba(201,168,76,0.3); font-weight:600; border-radius:2px;">
+                                @item.Calificacion <i class="fas fa-star" style="font-size:0.7rem;"></i>
+                                </span>
+                            </td>
+                            <td style="text-align:left; font-style:italic; color:rgba(248,244,238,0.8); max-width: 250px;">"@item.Comentario"</td>
+                            <td class="text-center" style="font-size:0.75rem;">@item.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-center">
+                            @if (usuarioActualID == item.UsuarioID || rol == "ADMINISTRADOR")
+                            {
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a asp-action="Edit" asp-route-id="@item.ResenaID" class="btn btn-sm" style="color:var(--gold-light); border:1px solid rgba(232,213,163,0.3);" title="Editar">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.ResenaID" class="btn btn-sm" style="color:#d9534f; border:1px solid rgba(217,83,79,0.3);" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                            }
+                            else
+                            {
+                                        <span style="font-size:0.7rem; color:rgba(248,244,238,0.4); text-transform:uppercase; letter-spacing:0.1em;">No permitido</span>
+                            }
+                            </td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

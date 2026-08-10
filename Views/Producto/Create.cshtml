@@ -1,0 +1,92 @@
+﻿@model Scentify.Models.Producto
+
+@{
+    ViewData["Title"] = "Crear Producto";
+}
+
+<div class="container mt-5" style="max-width: 700px;">
+    <h2 class="mb-4 text-center">@ViewData["Title"]</h2>
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="bg-white p-4 shadow rounded">
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label text-uppercase small text-muted">Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Descripcion" class="form-label text-uppercase small text-muted">Descripción</label>
+            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Descripcion" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Precio" class="form-label text-uppercase small text-muted">Precio (₡)</label>
+                <input asp-for="Precio" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Precio" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Descuento" class="form-label text-uppercase small text-muted">Descuento (₡)</label>
+                <input asp-for="Descuento" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Descuento" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Stock" class="form-label text-uppercase small text-muted">Stock</label>
+                <input asp-for="Stock" class="form-control" type="number" />
+                <span asp-validation-for="Stock" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="TamanioML" class="form-label text-uppercase small text-muted">Tamaño (ml)</label>
+                <input asp-for="TamanioML" class="form-control" type="number" />
+                <span asp-validation-for="TamanioML" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3 mt-3">
+            <label asp-for="Genero" class="form-label text-uppercase small text-muted">Género</label>
+            <input asp-for="Genero" class="form-control" />
+            <span asp-validation-for="Genero" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="CategoriaID" class="form-label text-uppercase small text-muted">Categoría</label>
+                <select asp-for="CategoriaID" class="form-select" asp-items="ViewBag.Categorias">
+                    <option value="">-- Seleccione una categoría --</option>
+                </select>
+                <span asp-validation-for="CategoriaID" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MarcaID" class="form-label text-uppercase small text-muted">Marca</label>
+                <select asp-for="MarcaID" class="form-select" asp-items="ViewBag.Marcas">
+                    <option value="">-- Seleccione una marca --</option>
+                </select>
+                <span asp-validation-for="MarcaID" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3 mt-3">
+            <label asp-for="ImagenURL" class="form-label text-uppercase small text-muted">URL de Imagen</label>
+            <input asp-for="ImagenURL" class="form-control" />
+            <span asp-validation-for="ImagenURL" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar Producto</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

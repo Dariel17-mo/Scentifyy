@@ -1,0 +1,326 @@
+﻿@model IEnumerable<Scentify.Models.Categoria>
+
+@{
+    ViewData["Title"] = "Listado de Categorías";
+}
+
+<style>
+    /* ── ESTILOS LUXURY PANEL ADMIN ── */
+    .lux-container {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--scent-white, #F8F4EE);
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .lux-header-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        font-weight: 300;
+        margin-bottom: 0;
+    }
+    .lux-btn-create {
+        background: transparent;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        transition: all 0.3s;
+    }
+    .lux-btn-create:hover {
+        background: rgba(201,168,76,0.1);
+        color: var(--gold-light, #E8D5A3);
+    }
+    .lux-btn-export {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--glass-border, rgba(201,168,76,0.22));
+        color: rgba(248,244,238,0.7);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .lux-btn-export:hover {
+        background: rgba(255,255,255,0.08);
+        color: var(--white);
+        border-color: var(--gold);
+    }
+    .lux-alert {
+        background: rgba(25,135,84,0.1);
+        border: 1px solid rgba(25,135,84,0.3);
+        color: #75b798;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Dropdown Menú Lux */
+    .lux-dropdown-menu {
+        background: rgba(10,10,10,0.95);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(5px);
+    }
+    .lux-dropdown-item {
+        color: rgba(248,244,238,0.8);
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+    .lux-dropdown-item:hover {
+        background: rgba(201,168,76,0.1);
+        color: var(--gold);
+    }
+    .lux-dropdown-item i {
+        color: var(--gold) !important;
+    }
+
+    /* Tabla Lux */
+    .lux-table-wrapper {
+        background: rgba(255,255,255,0.015);
+        border: 1px solid var(--glass-border);
+        border-radius: 4px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .lux-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .lux-table th {
+        background: transparent !important;
+        color: var(--gold) !important;
+        font-size: 0.70rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-weight: 500;
+        border-bottom: 1px solid var(--glass-border) !important;
+        padding: 1.2rem 1rem;
+    }
+    .lux-table td {
+        background: transparent !important;
+        color: var(--scent-white) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+        padding: 1rem;
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+    
+    /* Config. dataTables (esconder elementos base) */
+    .dataTables_wrapper .dataTables_length, 
+    .dataTables_wrapper .dataTables_filter, 
+    .dataTables_wrapper .dataTables_info, 
+    .dataTables_wrapper .dataTables_processing, 
+    .dataTables_wrapper .dataTables_paginate {
+        color: rgba(248,244,238,0.6) !important;
+        font-size: 0.8rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid var(--glass-border);
+        background: rgba(255,255,255,0.03);
+        color: #fff;
+        border-radius: 2px;
+        padding: 0.3rem 0.5rem;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus {
+        outline: none;
+        border-color: var(--gold);
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: rgba(248,244,238,0.7) !important;
+        border: 1px solid transparent !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: rgba(201,168,76,0.1) !important;
+        color: var(--gold) !important;
+        border-color: var(--glass-border) !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: rgba(255,255,255,0.05) !important;
+        color: #fff !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+</style>
+
+<div class="lux-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color:var(--glass-border) !important;">
+        <h2 class="lux-header-title">
+            Listado de Categorías
+        </h2>
+        <a asp-action="Create" class="btn lux-btn-create">
+            <i class="fas fa-plus me-2"></i>Nueva Categoría
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert lux-alert alert-dismissible fade show shadow-none" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["MensajeExito"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar" style="filter: invert(1) grayscale(100%) brightness(200%);"></button>
+        </div>
+    }
+
+    <div class="dropdown mb-3">
+        <button class="btn lux-btn-export dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-file-export me-1"></i> Exportar Datos
+        </button>
+        <ul class="dropdown-menu lux-dropdown-menu" aria-labelledby="exportDropdown">
+            <li><button class="dropdown-item lux-dropdown-item export-btn" data-type="copy"><i class="fas fa-copy me-2"></i> Copiar</button></li>
+            <li><button class="dropdown-item lux-dropdown-item export-btn" data-type="excel"><i class="fas fa-file-excel me-2"></i> Excel</button></li>
+            <li><button class="dropdown-item lux-dropdown-item export-btn" data-type="csv"><i class="fas fa-file-csv me-2"></i> CSV</button></li>
+            <li><button class="dropdown-item lux-dropdown-item export-btn" data-type="pdf"><i class="fas fa-file-pdf me-2"></i> PDF</button></li>
+            <li><button class="dropdown-item lux-dropdown-item export-btn" data-type="print"><i class="fas fa-print me-2"></i> Imprimir</button></li>
+        </ul>
+    </div>
+
+    <div class="lux-table-wrapper">
+        <table id="tablaCategorias" class="table align-middle lux-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th>Nombre</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var categoria in Model)
+                {
+                    <tr>
+                        <td class="text-center">@categoria.CategoriaID</td>
+                        <td>@categoria.Nombre</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@categoria.CategoriaID" class="btn btn-sm me-1" style="color:var(--gold-light); border:1px solid rgba(232,213,163,0.3);" title="Editar">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@categoria.CategoriaID" class="btn btn-sm" style="color:#d9534f; border:1px solid rgba(217,83,79,0.3);" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- DataTables core -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+
+    <!-- Botones de exportación -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+    <!-- Librerías para exportar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+
+    <!-- FontAwesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            const tabla = $('#tablaCategorias').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        className: 'd-none',
+                        attr: { id: 'btnCopy' },
+                        exportOptions: { columns: [0, 1] }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        className: 'd-none',
+                        attr: { id: 'btnExcel' },
+                        exportOptions: { columns: [0, 1] }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        className: 'd-none',
+                        attr: { id: 'btnCsv' },
+                        exportOptions: { columns: [0, 1] }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        className: 'd-none',
+                        attr: { id: 'btnPdf' },
+                        orientation: 'portrait',
+                        pageSize: 'A4',
+                        title: 'Listado de Categorías - Scentify',
+                        exportOptions: { columns: [0, 1] },
+                        customize: function (doc) {
+                            doc.styles = {
+                                header: {
+                                    fontSize: 16,
+                                    bold: true,
+                                    alignment: 'center',
+                                    margin: [0, 0, 0, 10]
+                                },
+                                tableHeader: {
+                                    color: 'white',
+                                    fillColor: '#343a40',
+                                    alignment: 'center',
+                                    bold: true,
+                                    fontSize: 12
+                                },
+                                defaultStyle: {
+                                    fontSize: 10,
+                                    font: 'Helvetica'
+                                }
+                            };
+                            doc.content[0].text = 'Scentify\nListado de Categorías';
+                            doc.content[0].style = 'header';
+                            if (doc.content[1] && doc.content[1].table) {
+                                doc.content[1].table.widths = ['*', '*'];
+                                doc.content[1].table.body.forEach(function (row) {
+                                    row.forEach(function (cell) {
+                                        if (typeof cell === 'object') {
+                                            cell.alignment = 'center';
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        className: 'd-none',
+                        attr: { id: 'btnPrint' },
+                        exportOptions: { columns: [0, 1] }
+                    }
+                ],
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                }
+            });
+
+            $('.export-btn').on('click', function () {
+                const type = $(this).data('type');
+                switch (type) {
+                    case 'copy': $('#btnCopy').click(); break;
+                    case 'excel': $('#btnExcel').click(); break;
+                    case 'csv': $('#btnCsv').click(); break;
+                    case 'pdf': $('#btnPdf').click(); break;
+                    case 'print': $('#btnPrint').click(); break;
+                }
+            });
+
+            setTimeout(function () {
+                $('.alert').alert('close');
+            }, 4000);
+        });
+    </script>
+}

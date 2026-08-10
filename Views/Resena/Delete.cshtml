@@ -1,0 +1,21 @@
+﻿@model Scentify.Models.Resena
+
+@{
+    ViewData["Title"] = "Eliminar Reseña";
+}
+<h2>@ViewData["Title"]</h2>
+
+<h3>¿Estás seguro de eliminar esta reseña?</h3>
+
+<div class="alert alert-warning">
+    <p><strong>Producto:</strong> @Model.ProductoNombre</p>
+    <p><strong>Usuario:</strong> @Model.UsuarioNombre (@Model.Email)</p>
+    <p><strong>Calificación:</strong> @Model.Calificacion</p>
+    <p><strong>Comentario:</strong> @Model.Comentario</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="ResenaID" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

@@ -1,0 +1,720 @@
+﻿@{
+    ViewData["Title"] = "Bienvenido a Scentify";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        /* ══ THREE.JS HERO SCENE ══ */
+        (function () {
+            const canvas = document.getElementById('hero-canvas');
+            if (!canvas) return;
+            const parent = canvas.parentElement;
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(parent.offsetWidth, parent.offsetHeight);
+            renderer.setClearColor(0x000000, 0);
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, parent.offsetWidth / parent.offsetHeight, 0.1, 100);
+            camera.position.set(0, 0, 5);
+
+            function addRing(r, tube, col, op, rx, ry) {
+                const m = new THREE.Mesh(
+                    new THREE.TorusGeometry(r, tube, 16, 100),
+                    new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: op })
+                );
+                m.rotation.x = rx; m.rotation.y = ry;
+                scene.add(m); return m;
+            }
+            const r1 = addRing(3, 0.005, 0xC9A84C, 0.18, 1.2, 0);
+            const r2 = addRing(4.2, 0.003, 0xC9A84C, 0.09, 0.5, 0.3);
+            const r3 = addRing(2.1, 0.006, 0xC9A84C, 0.14, -0.8, 0.5);
+
+            const orbM = new THREE.MeshPhongMaterial({
+                color: 0x0d0d0d, emissive: 0xC9A84C,
+                emissiveIntensity: 0.06, transparent: true, opacity: 0.28, shininess: 200
+            });
+            const orb = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), orbM);
+            scene.add(orb);
+
+            const G = new THREE.Group();
+            const bMat = new THREE.MeshPhongMaterial({ color: 0x111111, transparent: true, opacity: 0.52, shininess: 280 });
+            const gMat = new THREE.MeshPhongMaterial({ color: 0xC9A84C, shininess: 500 });
+            const lMat = new THREE.MeshPhongMaterial({ color: 0xD4A017, transparent: true, opacity: 0.75 });
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.57, 0.63, 2.1, 32), bMat);
+            body.position.y = 1.1; G.add(body);
+            const liq = new THREE.Mesh(new THREE.CylinderGeometry(0.49, 0.55, 1.5, 32), lMat);
+            liq.position.y = 0.88; G.add(liq);
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.52, 0.44, 32), bMat);
+            neck.position.y = 2.37; G.add(neck);
+            const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.20, 0.52, 32), gMat);
+            cap.position.y = 2.87; G.add(cap);
+            const capT = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 32), gMat);
+            capT.scale.y = 0.48; capT.position.y = 3.15; G.add(capT);
+            [0.43, 1.71].forEach(y => {
+                const b = new THREE.Mesh(new THREE.CylinderGeometry(0.60, 0.60, 0.055, 32), gMat);
+                b.position.y = y; G.add(b);
+            });
+            G.add(new THREE.Mesh(
+                new THREE.SphereGeometry(1.1, 32, 32),
+                new THREE.MeshBasicMaterial({ color: 0xC9A84C, transparent: true, opacity: 0.045 })
+            ));
+            G.position.y = -1.35;
+            scene.add(G);
+
+            const pPos = new Float32Array(180 * 3);
+            for (let i = 0; i < 180; i++) {
+                pPos[i * 3] = (Math.random() - .5) * 17; pPos[i * 3 + 1] = (Math.random() - .5) * 17; pPos[i * 3 + 2] = (Math.random() - .5) * 9;
+            }
+            const pGeo = new THREE.BufferGeometry();
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+            scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xC9A84C, size: 0.022, transparent: true, opacity: 0.4 })));
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+            const kl = new THREE.PointLight(0xffffff, 2, 22); kl.position.set(3, 5, 4); scene.add(kl);
+            const rl = new THREE.PointLight(0xC9A84C, 1.9, 11); rl.position.set(-2, 2, -2); scene.add(rl);
+
+            let mx = 0, my = 0, t = 0;
+            document.addEventListener('mousemove', e => {
+                mx = (e.clientX / window.innerWidth - .5) * 2;
+                my = -(e.clientY / window.innerHeight - .5) * 2;
+            });
+            (function tick() {
+                requestAnimationFrame(tick);
+                t += 0.006;
+                r1.rotation.y += 0.002; r2.rotation.y -= 0.0015; r3.rotation.z += 0.001;
+                orb.rotation.y += 0.003; orb.position.y = Math.sin(t * 1.1) * .1;
+                orbM.emissiveIntensity = 0.04 + Math.sin(t * 2.2) * .025;
+                G.rotation.y += 0.006; G.position.y = -1.35 + Math.sin(t * .85) * .11;
+                rl.intensity = 1.6 + Math.sin(t) * .55;
+                camera.position.x += (mx * .4 - camera.position.x) * .02;
+                camera.position.y += (my * .25 - camera.position.y) * .02;
+                camera.lookAt(scene.position);
+                renderer.render(scene, camera);
+            })();
+
+            window.addEventListener('resize', () => {
+                renderer.setSize(parent.offsetWidth, parent.offsetHeight);
+                camera.aspect = parent.offsetWidth / parent.offsetHeight;
+                camera.updateProjectionMatrix();
+            });
+        })();
+
+        /* ══ 2D PARTICLES ══ */
+        (function () {
+            const c = document.getElementById('hero-particles');
+            if (!c) return;
+            const ctx = c.getContext('2d');
+            const hero = document.getElementById('sc-hero');
+            function resize() {
+                c.width = hero.offsetWidth;
+                c.height = hero.offsetHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+            const pts = Array.from({ length: 55 }, () => ({
+                x: Math.random() * c.width, y: Math.random() * c.height,
+                r: Math.random() * 1.3 + .3,
+                vx: (Math.random() - .5) * .25, vy: -(Math.random() * .3 + .07),
+                a: Math.random() * .32 + .07
+            }));
+            (function draw() {
+                ctx.clearRect(0, 0, c.width, c.height);
+                pts.forEach(p => {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(201,168,76,${p.a})`; ctx.fill();
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.y < -5) { p.y = c.height + 5; p.x = Math.random() * c.width; }
+                    if (p.x < 0 || p.x > c.width) p.vx *= -1;
+                });
+                requestAnimationFrame(draw);
+            })();
+        })();
+
+        /* ══ SCROLL REVEAL ══ */
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('sc-visible'); });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.sc-reveal').forEach(r => obs.observe(r));
+    </script>
+}
+
+<style>
+    :root {
+        --gold: #C9A84C;
+        --gold-light: #E8D5A3;
+        --black: #080808;
+        --card-bg: #0f0f0f;
+        --card-border: rgba(201, 168, 76, 0.15);
+        --white: #F8F4EE;
+        --muted: rgba(248, 244, 238, 0.4);
+    }
+
+    #home-wrapper {
+        background: var(--black);
+        overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    #sc-hero {
+        position: relative;
+        /* ← clave: relative, NO fixed */
+        height: calc(100vh - 70px);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* canvas ocupa todo el hero pero no sale de él */
+    #hero-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1;
+    }
+
+    #hero-particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+        opacity: 0.45;
+    }
+
+    /* noise */
+    #sc-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        opacity: 0.28;
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        pointer-events: none;
+        padding: 0 2rem;
+    }
+
+    .hero-eyebrow {
+        font-size: 0.58rem;
+        letter-spacing: 0.6em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 1.8rem;
+        opacity: 0;
+        animation: scFadeUp 1s ease 0.6s forwards;
+    }
+
+    .hero-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(3.5rem, 10vw, 9rem);
+        font-weight: 300;
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        color: var(--white);
+        opacity: 0;
+        animation: scFadeUp 1.2s ease 0.8s forwards;
+    }
+
+    .hero-title em {
+        font-style: italic;
+        color: var(--gold);
+    }
+
+    .hero-sub {
+        margin-top: 2rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.35em;
+        color: rgba(248, 244, 238, 0.4);
+        text-transform: uppercase;
+        opacity: 0;
+        animation: scFadeUp 1s ease 1.1s forwards;
+    }
+
+    .hero-actions {
+        margin-top: 3rem;
+        display: flex;
+        gap: 1.2rem;
+        justify-content: center;
+        pointer-events: all;
+        opacity: 0;
+        animation: scFadeUp 1s ease 1.3s forwards;
+    }
+
+    .btn-gold {
+        background: var(--gold);
+        color: var(--black);
+        border: none;
+        padding: 0.9rem 2.5rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.3s;
+    }
+
+    .btn-gold:hover {
+        background: var(--gold-light);
+        color: var(--black);
+    }
+
+    .btn-ghost {
+        background: transparent;
+        color: var(--gold);
+        border: 1px solid var(--gold);
+        padding: 0.9rem 2.5rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-weight: 400;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .btn-ghost:hover {
+        background: rgba(201, 168, 76, 0.08);
+        color: var(--gold);
+    }
+
+    .hero-scroll {
+        position: absolute;
+        bottom: 2.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        z-index: 10;
+        pointer-events: all;
+        cursor: pointer;
+        opacity: 0;
+        animation: scFadeUp 1s ease 1.6s forwards;
+    }
+
+    .hero-scroll span {
+        font-size: 0.52rem;
+        letter-spacing: 0.4em;
+        color: rgba(201, 168, 76, 0.45);
+    }
+
+    .scroll-line {
+        width: 1px;
+        height: 55px;
+        background: linear-gradient(to bottom, var(--gold), transparent);
+        animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ── MARQUEE ── */
+    .sc-marquee {
+        overflow: hidden;
+        border-top: 1px solid var(--card-border);
+        border-bottom: 1px solid var(--card-border);
+        padding: 1rem 0;
+        background: rgba(8, 8, 8, 0.9);
+        position: relative;
+        z-index: 5;
+    }
+
+    .sc-marquee-track {
+        display: flex;
+        gap: 4rem;
+        animation: scMarquee 30s linear infinite;
+        white-space: nowrap;
+    }
+
+    .sc-marquee-item {
+        font-size: 0.52rem;
+        letter-spacing: 0.5em;
+        color: rgba(201, 168, 76, 0.55);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .sc-marquee-item::after {
+        content: '✦';
+        color: var(--gold);
+        font-size: 0.45rem;
+    }
+
+    /* ── WELCOME ── */
+    .sc-welcome {
+        padding: 7rem 4rem;
+        text-align: center;
+        max-width: 860px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 5;
+    }
+
+    .sc-section-label {
+        font-size: 0.52rem;
+        letter-spacing: 0.6em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .sc-section-label::before,
+    .sc-section-label::after {
+        content: '';
+        width: 50px;
+        height: 1px;
+    }
+
+    .sc-section-label::before {
+        background: linear-gradient(to left, rgba(201, 168, 76, 0.35), transparent);
+    }
+
+    .sc-section-label::after {
+        background: linear-gradient(to right, rgba(201, 168, 76, 0.35), transparent);
+    }
+
+    .sc-welcome h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        font-weight: 300;
+        line-height: 1.15;
+        margin-bottom: 1.5rem;
+        color: var(--white);
+    }
+
+    .sc-welcome h2 em {
+        font-style: italic;
+        color: var(--gold);
+    }
+
+    .sc-welcome p {
+        font-size: 0.7rem;
+        line-height: 2.1;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        margin-bottom: 2.5rem;
+    }
+
+    .greeting-name {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        font-weight: 300;
+        font-style: italic;
+        color: var(--gold);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    /* ── FEATURES ── */
+    .sc-features {
+        padding: 5rem 4rem;
+        background: rgba(201, 168, 76, 0.02);
+        border-top: 1px solid var(--card-border);
+        position: relative;
+        z-index: 5;
+    }
+
+    .sc-features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--card-border);
+        border: 1px solid var(--card-border);
+        max-width: 1100px;
+        margin: 3rem auto 0;
+    }
+
+    .sc-feature {
+        background: var(--card-bg);
+        padding: 3rem 2.5rem;
+        border-right: 1px solid var(--card-border);
+        transition: background 0.4s;
+    }
+
+    .sc-feature:last-child {
+        border-right: none;
+    }
+
+    .sc-feature:hover {
+        background: #141414;
+    }
+
+    .sc-feature-icon {
+        font-size: 1.4rem;
+        color: var(--gold);
+        margin-bottom: 1.5rem;
+    }
+
+    .sc-feature h3 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.4rem;
+        font-weight: 300;
+        color: var(--white);
+        margin-bottom: 0.8rem;
+        letter-spacing: 0.05em;
+    }
+
+    .sc-feature p {
+        font-size: 0.62rem;
+        line-height: 1.9;
+        color: rgba(248, 244, 238, 0.32);
+        letter-spacing: 0.05em;
+        margin: 0;
+    }
+
+    /* ── CTA ── */
+    .sc-cta {
+        padding: 8rem 4rem;
+        text-align: center;
+        position: relative;
+        z-index: 5;
+    }
+
+    .sc-cta h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        color: var(--white);
+    }
+
+    .sc-cta h2 em {
+        font-style: italic;
+        color: var(--gold);
+    }
+
+    .sc-cta p {
+        font-size: 0.68rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        line-height: 2;
+        margin-bottom: 3rem;
+    }
+
+    /* ── REVEAL ── */
+    .sc-reveal {
+        opacity: 0;
+        transform: translateY(35px);
+        transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .sc-reveal.sc-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .sc-reveal-d1 {
+        transition-delay: 0.1s;
+    }
+
+    .sc-reveal-d2 {
+        transition-delay: 0.2s;
+    }
+
+    .sc-reveal-d3 {
+        transition-delay: 0.3s;
+    }
+
+    @@keyframes scFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(28px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes scMarquee {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    @@keyframes scrollPulse {
+
+        0%,
+        100% {
+            opacity: .4;
+            transform: scaleY(1);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scaleY(.65);
+        }
+    }
+
+    @@media (max-width: 768px) {
+
+        .sc-welcome,
+        .sc-features,
+        .sc-cta {
+            padding: 4rem 1.5rem;
+        }
+
+        .sc-features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sc-feature {
+            border-right: none;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+
+<div id="home-wrapper">
+
+    <!-- ─── HERO ─── -->
+    <section id="sc-hero">
+        <canvas id="hero-canvas"></canvas>
+        <canvas id="hero-particles"></canvas>
+
+        <div class="hero-content">
+            <p class="hero-eyebrow">Haute Parfumerie · Scentify</p>
+            <h1 class="hero-title">Tu <em>esencia</em><br>única</h1>
+            @if (!string.IsNullOrEmpty(ViewBag.NombreUsuario as string))
+            {
+                <p class="hero-sub">Bienvenido de vuelta, @ViewBag.NombreUsuario</p>
+            }
+            else
+            {
+                <p class="hero-sub">Perfumes que crean recuerdos inolvidables</p>
+            }
+            <div class="hero-actions">
+                <a asp-controller="Producto" asp-action="Index" class="btn-gold">Explorar Catálogo</a>
+                @if (string.IsNullOrEmpty(ViewBag.NombreUsuario as string))
+                {
+                    <a asp-controller="Producto" asp-action="Index" class="btn-ghost">Adquirir</a>
+                }
+                else
+                {
+                    <a asp-controller="CarritoCompra" asp-action="Index" class="btn-ghost">Mi Carrito</a>
+                }
+            </div>
+        </div>
+
+        <div class="hero-scroll" onclick="document.querySelector('.sc-marquee').scrollIntoView({behavior:'smooth'})">
+            <span>Descubrir</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ─── MARQUEE ─── -->
+    <div class="sc-marquee">
+        <div class="sc-marquee-track">
+            <span class="sc-marquee-item">Chanel</span>
+            <span class="sc-marquee-item">Dior</span>
+            <span class="sc-marquee-item">Tom Ford</span>
+            <span class="sc-marquee-item">Creed</span>
+            <span class="sc-marquee-item">Yves Saint Laurent</span>
+            <span class="sc-marquee-item">Gucci</span>
+            <span class="sc-marquee-item">Versace</span>
+            <span class="sc-marquee-item">Armani</span>
+            <span class="sc-marquee-item">Chanel</span>
+            <span class="sc-marquee-item">Dior</span>
+            <span class="sc-marquee-item">Tom Ford</span>
+            <span class="sc-marquee-item">Creed</span>
+            <span class="sc-marquee-item">Yves Saint Laurent</span>
+            <span class="sc-marquee-item">Gucci</span>
+            <span class="sc-marquee-item">Versace</span>
+            <span class="sc-marquee-item">Armani</span>
+        </div>
+    </div>
+
+    <!-- ─── BIENVENIDA ─── -->
+    <section class="sc-welcome">
+        <div class="sc-section-label sc-reveal">Nuestra filosofía</div>
+        <h2 class="sc-reveal sc-reveal-d1">El arte del <em>perfume</em><br>hecho experiencia</h2>
+        @if (!string.IsNullOrEmpty(ViewBag.NombreUsuario as string))
+        {
+            <span class="greeting-name sc-reveal sc-reveal-d1">Hola, @ViewBag.NombreUsuario 👋</span>
+        }
+        <p class="sc-reveal sc-reveal-d2">
+            En Scentify cada fragancia es una obra de arte olfativa. Trabajamos con los mejores
+            maestros perfumistas para crear composiciones que trascienden lo ordinario y evocan
+            emociones profundas. Desde los campos de jazmín de Grasse hasta los bosques de
+            sándalo de Mysore.
+        </p>
+        <a asp-controller="Producto" asp-action="Index" class="btn-gold sc-reveal sc-reveal-d3">
+            Ver Colección Completa
+        </a>
+    </section>
+
+    <!-- ─── FEATURES ─── -->
+    <section class="sc-features">
+        <div style="max-width:1100px;margin:0 auto;">
+            <div class="sc-section-label sc-reveal">Por qué elegirnos</div>
+            <div class="sc-features-grid">
+                <div class="sc-feature sc-reveal sc-reveal-d1">
+                    <div class="sc-feature-icon"><i class="fas fa-leaf"></i></div>
+                    <h3>Ingredientes Únicos</h3>
+                    <p>Seleccionamos los ingredientes más raros y preciados del mundo. Cada fragancia cuenta una
+                        historia de origen.</p>
+                </div>
+                <div class="sc-feature sc-reveal sc-reveal-d2">
+                    <div class="sc-feature-icon"><i class="fas fa-certificate"></i></div>
+                    <h3>Calidad Certificada</h3>
+                    <p>Todos nuestros perfumes son creados bajo los más estrictos estándares internacionales de calidad
+                        y pureza.</p>
+                </div>
+                <div class="sc-feature sc-reveal sc-reveal-d3">
+                    <div class="sc-feature-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <h3>Entrega Exclusiva</h3>
+                    <p>Cada pedido llega envuelto en nuestra presentación de lujo, una experiencia desde el primer
+                        contacto.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── CTA ─── -->
+    <section class="sc-cta">
+        <div class="sc-section-label sc-reveal">Empieza ahora</div>
+        <h2 class="sc-reveal sc-reveal-d1">Encuentra tu <em>fragancia</em><br>perfecta hoy</h2>
+        <p class="sc-reveal sc-reveal-d2">
+            La elegancia y la exclusividad reunidas en una sola colección.<br>
+            Elixir de dioses para los mortales más exigentes.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap sc-reveal sc-reveal-d3">
+            <a asp-controller="Producto" asp-action="Index" class="btn-gold">Explorar Catálogo</a>
+            @if (string.IsNullOrEmpty(ViewBag.NombreUsuario as string))
+            {
+                <a asp-controller="Producto" asp-action="Index" class="btn-ghost">Adquirir</a>
+            }
+        </div>
+    </section>
+
+</div>

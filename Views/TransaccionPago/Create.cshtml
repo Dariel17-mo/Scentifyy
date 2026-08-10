@@ -1,0 +1,283 @@
+﻿@{
+    ViewData["Title"] = "Registrar Pago";
+}
+
+<style>
+    /* ── ESTILOS LUXURY PANEL ADMIN - REGISTRAR PAGO ── */
+    .lux-form-container {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--scent-white, #F8F4EE);
+        max-width: 800px;
+        margin: 3rem auto;
+        background: rgba(10, 10, 10, 0.95);
+        border: 1px solid var(--glass-border, rgba(201, 168, 76, 0.22));
+        border-radius: 4px;
+        padding: 2.5rem 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .lux-form-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+        padding-bottom: 1rem;
+    }
+
+    .lux-label {
+        color: var(--gold-light, #E8D5A3);
+        font-size: 0.75rem;
+        letter-spacing: 0.20em;
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+        display: block;
+    }
+
+    .lux-input,
+    .lux-select {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--glass-border);
+        color: var(--scent-white);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        padding: 0.8rem 1rem;
+        width: 100%;
+        border-radius: 2px;
+        transition: all 0.3s;
+    }
+
+    .lux-input:focus,
+    .lux-select:focus {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--gold);
+        outline: none;
+        box-shadow: none;
+    }
+
+    .lux-input[readonly] {
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--gold);
+        border-color: rgba(201, 168, 76, 0.3);
+        font-weight: 500;
+        letter-spacing: 0.05em;
+    }
+
+    .lux-select option {
+        background: var(--scent-black, #080808);
+        color: var(--scent-white);
+    }
+
+    .lux-btn-primary {
+        background: var(--gold);
+        color: var(--scent-black, #080808);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        font-weight: 500;
+        transition: all 0.3s;
+        border-radius: 2px;
+        flex: 1;
+        text-align: center;
+    }
+
+    .lux-btn-primary:hover {
+        background: var(--gold-light);
+        opacity: 0.9;
+    }
+
+    .lux-btn-secondary {
+        background: transparent;
+        color: rgba(248, 244, 238, 0.6);
+        border: 1px solid rgba(248, 244, 238, 0.2);
+        padding: 0.8rem 1.5rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        text-decoration: none;
+        border-radius: 2px;
+        flex: 1;
+        text-align: center;
+    }
+
+    .lux-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--scent-white);
+        border-color: rgba(248, 244, 238, 0.5);
+    }
+
+    .lux-alert {
+        background: rgba(25, 135, 84, 0.1);
+        border: 1px solid rgba(25, 135, 84, 0.3);
+        color: #75b798;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        text-align: center;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .lux-alert-danger {
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #ea868f;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        text-align: center;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="lux-form-container">
+    <h3 class="lux-form-title">
+        Registrar Pago de Pedido
+    </h3>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="lux-alert">@TempData["Mensaje"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="lux-alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="lux-alert-danger">
+            Por favor corrija los errores indicados abajo.
+        </div>
+    }
+
+    <form asp-action="Create" method="post">
+        <div class="mb-4">
+            <label for="pedidoId" class="lux-label">Pedido</label>
+            <select name="pedidoId" class="lux-select" id="pedidoSelect" required>
+                <option value="">Seleccione un pedido</option>
+                @foreach (var pedido in ViewBag.Pedidos)
+                {
+                    <option value="@pedido.PedidoID" data-total="@pedido.Total">
+                        @pedido.Descripcion
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="metodoPago" class="lux-label">Método de Pago</label>
+            <select name="metodoPago" class="lux-select" id="metodoPago" required>
+                <option value="">Seleccione un método</option>
+                @foreach (var metodo in (List<SelectListItem>)ViewBag.MetodosPago)
+                {
+                    <option value="@metodo.Value">@metodo.Text</option>
+                }
+            </select>
+        </div>
+
+        <!-- Total dinámico -->
+        <div id="totalContainer" class="mb-4"
+            style="display:none; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+            <label class="lux-label" style="color:var(--gold);">Total a Pagar</label>
+            <input type="text" id="totalMostrar" class="lux-input" readonly />
+        </div>
+
+        <div id="forms-dinamicos"
+            style="padding: 1.5rem; background: rgba(255,255,255,0.01); border: 1px solid var(--glass-border); border-radius: 4px; margin-bottom: 2rem;">
+            <!-- Campos si es tarjeta -->
+            <div id="tarjetaFields" style="display:none;">
+                <div class="mb-3">
+                    <label for="numeroTarjeta" class="lux-label">Número de Tarjeta</label>
+                    <input type="text" class="lux-input" name="numeroTarjeta" maxlength="16" autocomplete="off" />
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="icvv" class="lux-label">ICVV</label>
+                        <input type="text" class="lux-input" name="icvv" maxlength="4" autocomplete="off" />
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="fechaVencimiento" class="lux-label">Fech. Vencimiento</label>
+                        <input type="text" class="lux-input" name="fechaVencimiento" placeholder="MM/YY"
+                            autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campos si es efectivo -->
+            <div id="efectivoFields" style="display:none;">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="pagoCon" class="lux-label">Pago Con</label>
+                        <input type="number" step="0.01" class="lux-input" id="pagoCon" name="pagoCon" />
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="vuelto" class="lux-label">Vuelto</label>
+                        <input type="text" class="lux-input" id="vuelto" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-5 pt-2"
+            style="border-top: 1px solid rgba(255,255,255,0.05); gap: 1rem;">
+            <a asp-action="Index" class="lux-btn-secondary">Cancelar</a>
+            <button type="submit" class="lux-btn-primary">Registrar Pago</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const metodoPago = document.getElementById('metodoPago');
+            const pedidoSelect = document.getElementById('pedidoSelect');
+            const tarjetaFields = document.getElementById('tarjetaFields');
+            const efectivoFields = document.getElementById('efectivoFields');
+            const totalContainer = document.getElementById('totalContainer');
+            const totalMostrar = document.getElementById('totalMostrar');
+            const pagoCon = document.getElementById('pagoCon');
+            const vuelto = document.getElementById('vuelto');
+
+            function actualizarTotal() {
+                const selected = pedidoSelect.options[pedidoSelect.selectedIndex];
+                const total = selected?.getAttribute('data-total');
+                if (total) {
+                    totalContainer.style.display = 'block';
+                    totalMostrar.value = `₡${parseFloat(total).toLocaleString('es-CR', { minimumFractionDigits: 2 })}`;
+                } else {
+                    totalContainer.style.display = 'none';
+                    totalMostrar.value = '';
+                }
+            }
+
+            function toggleCamposPago() {
+                const metodo = metodoPago.value;
+                tarjetaFields.style.display = metodo === 'Tarjeta' ? 'block' : 'none';
+                efectivoFields.style.display = metodo === 'Efectivo' ? 'block' : 'none';
+            }
+
+            function calcularVuelto() {
+                const total = parseFloat(pedidoSelect.options[pedidoSelect.selectedIndex]?.getAttribute('data-total') || 0);
+                const pago = parseFloat(pagoCon.value || 0);
+                const cambio = pago - total;
+                vuelto.value = cambio >= 0 ? `₡${cambio.toLocaleString('es-CR', { minimumFractionDigits: 2 })}` : '';
+            }
+
+            metodoPago.addEventListener('change', toggleCamposPago);
+            pedidoSelect.addEventListener('change', actualizarTotal);
+            pagoCon.addEventListener('input', calcularVuelto);
+
+            // Inicial
+            toggleCamposPago();
+            actualizarTotal();
+        });
+    </script>
+}

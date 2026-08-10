@@ -1,0 +1,816 @@
+﻿@model X.PagedList.IPagedList<Scentify.Models.Producto>
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common
+
+@{
+    ViewData["Title"] = "Catálogo de Productos";
+}
+
+<style>
+    :root {
+        --gold:         #C9A84C;
+        --gold-light:   #E8D5A3;
+        --gold-dim:     rgba(201,168,76,0.18);
+        --black:        #080808;
+        --card-bg:      #0f0f0f;
+        --card-border:  rgba(201,168,76,0.15);
+        --white:        #F8F4EE;
+        --muted:        rgba(248,244,238,0.38);
+    }
+
+    /* ── PAGE ── */
+    #catalogo-page {
+        background: var(--black);
+        min-height: 100vh;
+        padding: 3.5rem 0 6rem;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 300;
+    }
+
+    /* ── HEADER ── */
+    .cat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 3rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .cat-eyebrow {
+        font-size: 0.5rem;
+        letter-spacing: 0.6em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+    .cat-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 300;
+        color: var(--white);
+        margin: 0;
+        line-height: 1;
+    }
+    .cat-title em { font-style: italic; color: var(--gold); }
+
+    .btn-nuevo {
+        background: var(--gold);
+        color: var(--black);
+        border: none;
+        padding: 0.7rem 1.8rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+    .btn-nuevo:hover { background: var(--gold-light); color: var(--black); }
+
+    /* ── ALERT ── */
+    .cat-alert {
+        background: rgba(201,168,76,0.08);
+        border: 1px solid rgba(201,168,76,0.3);
+        color: var(--gold-light);
+        padding: 0.9rem 1.2rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .cat-alert .btn-close { filter: invert(1) sepia(1) saturate(2); opacity: 0.5; }
+
+    /* ── FILTERS ── */
+    .cat-filters {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--card-border);
+    }
+    .cat-select {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--card-border);
+        color: var(--white);
+        padding: 0.7rem 2.2rem 0.7rem 1rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.62rem;
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C9A84C' opacity='.6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.8rem center;
+        cursor: pointer;
+        transition: border-color 0.3s;
+        min-width: 180px;
+    }
+    .cat-select:focus { border-color: var(--gold); }
+    .cat-select option { background: #111; color: var(--white); }
+
+    .cat-check-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+    }
+    .cat-check {
+        width: 16px; height: 16px;
+        appearance: none; -webkit-appearance: none;
+        border: 1px solid var(--card-border);
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+        transition: border-color 0.3s;
+        flex-shrink: 0;
+    }
+    .cat-check:checked {
+        border-color: var(--gold);
+        background: var(--gold-dim);
+    }
+    .cat-check:checked::after {
+        content: '✓';
+        position: absolute; top: -1px; left: 2px;
+        font-size: 0.7rem; color: var(--gold);
+    }
+    .cat-check-label {
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+
+    /* ── EXPORT DROPDOWN ── */
+    .cat-export .dropdown-toggle {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--muted);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        padding: 0.6rem 1.2rem;
+        transition: all 0.3s;
+    }
+    .cat-export .dropdown-toggle:hover,
+    .cat-export .dropdown-toggle:focus,
+    .cat-export .dropdown-toggle.show {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: rgba(201,168,76,0.05);
+        box-shadow: none;
+    }
+    .cat-export .dropdown-menu {
+        background: #111;
+        border: 1px solid var(--card-border);
+        border-radius: 0;
+        padding: 0.4rem 0;
+        min-width: 160px;
+    }
+    .cat-export .dropdown-item {
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        padding: 0.6rem 1.2rem;
+        transition: all 0.2s;
+    }
+    .cat-export .dropdown-item:hover {
+        background: rgba(201,168,76,0.08);
+        color: var(--gold);
+    }
+
+    /* ── PRODUCT GRID ── */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1px;
+        background: var(--card-border);
+        border: 1px solid var(--card-border);
+        margin-bottom: 4rem;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .sc-product-card {
+        background: var(--card-bg);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.4s;
+    }
+    .sc-product-card:hover { background: #141414; }
+
+    .sc-product-img-wrap {
+        position: relative;
+        padding: 2.5rem 2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+        overflow: hidden;
+    }
+    .sc-product-img-wrap::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse at 50% 60%, rgba(201,168,76,0.07) 0%, transparent 70%);
+        transition: opacity 0.4s;
+        opacity: 0;
+    }
+    .sc-product-card:hover .sc-product-img-wrap::before { opacity: 1; }
+
+    .sc-product-img {
+        max-height: 190px;
+        max-width: 100%;
+        object-fit: contain;
+        transition: transform 0.5s cubic-bezier(0.23,1,0.32,1);
+        filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
+    }
+    .sc-product-card:hover .sc-product-img { transform: scale(1.05) translateY(-4px); }
+
+    /* discount badge */
+    .sc-discount-badge {
+        position: absolute;
+        top: 1rem; left: 1rem;
+        background: var(--gold);
+        color: var(--black);
+        font-size: 0.48rem;
+        letter-spacing: 0.25em;
+        padding: 0.25rem 0.6rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    .sc-admin-badge {
+        position: absolute;
+        top: 1rem; right: 1rem;
+    }
+
+    /* card body */
+    .sc-product-body {
+        padding: 0 1.5rem 1.2rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .sc-product-brand {
+        font-size: 0.52rem;
+        letter-spacing: 0.4em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+    }
+    .sc-product-name {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
+        font-weight: 300;
+        color: var(--white);
+        line-height: 1.2;
+        margin-bottom: 0.8rem;
+    }
+
+    /* price */
+    .sc-price-original {
+        font-size: 0.65rem;
+        color: rgba(248,244,238,0.3);
+        text-decoration: line-through;
+        letter-spacing: 0.05em;
+    }
+    .sc-price-final {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--gold);
+        letter-spacing: 0.02em;
+        line-height: 1;
+    }
+    .sc-price-regular {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--white);
+        letter-spacing: 0.02em;
+    }
+
+    /* stock */
+    .sc-stock-available {
+        font-size: 0.52rem;
+        letter-spacing: 0.2em;
+        color: rgba(100,200,120,0.8);
+        text-transform: uppercase;
+        margin-top: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .sc-stock-available::before {
+        content: '';
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: rgba(100,200,120,0.8);
+        flex-shrink: 0;
+    }
+    .sc-stock-empty {
+        font-size: 0.52rem;
+        letter-spacing: 0.2em;
+        color: rgba(220,80,80,0.7);
+        text-transform: uppercase;
+        margin-top: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .sc-stock-empty::before {
+        content: '';
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: rgba(220,80,80,0.7);
+        flex-shrink: 0;
+    }
+
+    /* card footer */
+    .sc-product-footer {
+        padding: 1rem 1.5rem 1.5rem;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .btn-add-cart {
+        width: 100%;
+        background: var(--gold);
+        border: none;
+        color: var(--black);
+        padding: 0.75rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-add-cart::before {
+        content: '';
+        position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transition: left 0.4s ease;
+    }
+    .btn-add-cart:hover { background: var(--gold-light); }
+    .btn-add-cart:hover::before { left: 100%; }
+    .btn-add-cart:disabled {
+        background: rgba(201,168,76,0.18);
+        color: rgba(201,168,76,0.4);
+        cursor: not-allowed;
+    }
+    .btn-add-cart:disabled::before { display: none; }
+
+    .sc-card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .btn-detalle {
+        flex: 1;
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--muted);
+        padding: 0.55rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.52rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .btn-detalle:hover { border-color: var(--gold); color: var(--gold); }
+
+    .btn-editar {
+        flex: 1;
+        background: transparent;
+        border: 1px solid rgba(201,168,76,0.3);
+        color: rgba(201,168,76,0.6);
+        padding: 0.55rem;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.52rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .btn-editar:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.06); }
+
+    /* ── EMPTY STATE ── */
+    .cat-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 6rem 2rem;
+    }
+    .cat-empty-icon {
+        font-size: 3rem;
+        color: rgba(201,168,76,0.2);
+        margin-bottom: 1.5rem;
+    }
+    .cat-empty p {
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+    }
+
+    /* ── PAGINATION ── */
+    .sc-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.3rem;
+    }
+    .sc-pagination .pagination {
+        display: flex;
+        gap: 4px;
+        list-style: none;
+        margin: 0; padding: 0;
+    }
+    .sc-pagination .page-item .page-link {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--muted);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        padding: 0.55rem 0.85rem;
+        border-radius: 0 !important;
+        transition: all 0.3s;
+        min-width: 36px;
+        text-align: center;
+    }
+    .sc-pagination .page-item .page-link:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: rgba(201,168,76,0.06);
+    }
+    .sc-pagination .page-item.active .page-link {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--black);
+        font-weight: 600;
+    }
+    .sc-pagination .page-item.disabled .page-link {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+
+    /* ── TOAST ── */
+    #sc-toast {
+        position: fixed;
+        bottom: 2rem; right: 2rem;
+        background: rgba(8,8,8,0.97);
+        border: 1px solid var(--card-border);
+        padding: 1rem 1.8rem;
+        z-index: 9999;
+        font-size: 0.6rem;
+        letter-spacing: 0.2em;
+        color: var(--gold);
+        opacity: 0;
+        transform: translateY(15px);
+        transition: all 0.4s;
+        backdrop-filter: blur(20px);
+        pointer-events: none;
+    }
+    #sc-toast.show { opacity: 1; transform: translateY(0); }
+    #sc-toast.error { color: rgba(220,80,80,0.9); border-color: rgba(220,80,80,0.25); }
+
+    @@media (max-width: 768px) {
+        .cat-filters { flex-direction: column; align-items: stretch; }
+        .cat-select { min-width: 100%; }
+        .products-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    }
+</style>
+
+<!-- TOAST -->
+<div id="sc-toast">✦ Producto añadido al carrito</div>
+
+<div id="catalogo-page">
+    <div class="container-fluid px-4 px-md-5">
+
+        <!-- ── ALERT ── -->
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="cat-alert alert-dismissible fade show" role="alert">
+                <span>✦ @TempData["Mensaje"]</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        }
+
+        <!-- ── HEADER ── -->
+        <div class="cat-header">
+            <div>
+                <div class="cat-eyebrow">Scentify · Colección</div>
+                <h1 class="cat-title">Catálogo de <em>Productos</em></h1>
+            </div>
+            @if (ViewBag.UsuarioRol == "Administrador")
+            {
+                <a asp-controller="Producto" asp-action="Create" class="btn-nuevo">
+                    <i class="fas fa-plus" style="font-size:0.7rem;"></i> Nuevo Producto
+                </a>
+            }
+        </div>
+
+        <!-- ── FILTERS ── -->
+        <form method="get" asp-action="Index" class="cat-filters">
+            <select name="marca" class="cat-select" onchange="this.form.submit()">
+                <option value="">Todas las marcas</option>
+                @{
+                    string marcaSeleccionada = ViewBag.MarcaSeleccionada as string ?? "";
+                    var marcas = ViewBag.Marcas as List<string> ?? new List<string>();
+                    foreach (var m in marcas)
+                    {
+                        var selected = (marcaSeleccionada == m) ? "selected" : "";
+                        @:<option value="@m" @(selected)>@m</option>
+                    }
+                }
+            </select>
+
+            <select name="categoria" class="cat-select" onchange="this.form.submit()">
+                <option value="">Todas las categorías</option>
+                @{
+                    string categoriaSeleccionada = ViewBag.CategoriaSeleccionada as string ?? "";
+                    var categorias = ViewBag.Categorias as List<string> ?? new List<string>();
+                    foreach (var c in categorias)
+                    {
+                        var selected = (categoriaSeleccionada == c) ? "selected" : "";
+                        @:<option value="@c" @(selected)>@c</option>
+                    }
+                }
+            </select>
+
+            <label class="cat-check-wrap">
+                <input type="checkbox" name="soloStock" value="true" class="cat-check"
+                       @(ViewBag.SoloStock != null && (bool)ViewBag.SoloStock ? "checked" : "")
+                       onchange="this.form.submit()" />
+                <span class="cat-check-label">Solo en stock</span>
+            </label>
+        </form>
+
+        <!-- ── EXPORT ── -->
+        @if (ViewBag.UsuarioRol == "Administrador")
+        {
+            <div class="cat-export dropdown mb-4">
+                <button class="dropdown-toggle" type="button" id="exportDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-file-export me-2"></i>Exportar
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                    <li><button class="dropdown-item export-btn" data-type="copy"><i class="fas fa-copy me-2"></i>Copiar</button></li>
+                    <li><button class="dropdown-item export-btn" data-type="excel"><i class="fas fa-file-excel me-2"></i>Excel</button></li>
+                    <li><button class="dropdown-item export-btn" data-type="csv"><i class="fas fa-file-csv me-2"></i>CSV</button></li>
+                    <li><button class="dropdown-item export-btn" data-type="pdf"><i class="fas fa-file-pdf me-2"></i>PDF</button></li>
+                    <li><button class="dropdown-item export-btn" data-type="print"><i class="fas fa-print me-2"></i>Imprimir</button></li>
+                </ul>
+            </div>
+        }
+
+        <!-- ── PRODUCTS ── -->
+        <div class="products-grid">
+            @if (!Model.Any())
+            {
+                <div class="cat-empty">
+                    <div class="cat-empty-icon"><i class="fas fa-wind"></i></div>
+                    <p>No se encontraron productos con los filtros seleccionados</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var producto in Model)
+                {
+                    var precioFinal = producto.Precio - producto.Descuento;
+                    <div class="sc-product-card">
+
+                        <div class="sc-product-img-wrap">
+                            @if (producto.Descuento > 0)
+                            {
+                                <span class="sc-discount-badge">Oferta</span>
+                            }
+                            <img src="@producto.ImagenURL"
+                                 alt="@producto.Nombre"
+                                 class="sc-product-img"
+                                 onerror="this.style.opacity='0.15'" />
+                        </div>
+
+                        <div class="sc-product-body">
+                            <div class="sc-product-brand">@producto.MarcaNombre</div>
+                            <div class="sc-product-name">@producto.Nombre</div>
+
+                            @if (producto.Descuento > 0)
+                            {
+                                <div class="sc-price-original">@((producto.Precio).ToString("'₡'#,0"))</div>
+                                <div class="sc-price-final">@((precioFinal).ToString("'₡'#,0"))</div>
+                            }
+                            else
+                            {
+                                <div class="sc-price-regular">@((producto.Precio).ToString("'₡'#,0"))</div>
+                            }
+
+                            @if (producto.Stock > 0)
+                            {
+                                <div class="sc-stock-available">Stock: @producto.Stock unidades</div>
+                            }
+                            else
+                            {
+                                <div class="sc-stock-empty">Sin stock</div>
+                            }
+                        </div>
+
+                        <div class="sc-product-footer">
+                            <button type="button"
+                                    class="btn-add-cart btn-agregar-carrito"
+                                    data-producto-id="@producto.ProductoID"
+                                    data-cantidad="1"
+                                    @(producto.Stock == 0 ? "disabled" : "")>
+                                <i class="fas fa-shopping-bag me-2" style="font-size:0.7rem;"></i>Añadir al carrito
+                            </button>
+
+                            <div class="sc-card-actions">
+                                <a asp-controller="Producto" asp-action="Detalle"
+                                   asp-route-id="@producto.ProductoID"
+                                   class="btn-detalle">
+                                    <i class="fas fa-eye me-1" style="font-size:0.7rem;"></i>Detalles
+                                </a>
+                                @if (ViewBag.UsuarioRol == "Administrador")
+                                {
+                                    <a asp-controller="Producto" asp-action="Edit"
+                                       asp-route-id="@producto.ProductoID"
+                                       class="btn-editar">
+                                        <i class="fas fa-pen me-1" style="font-size:0.7rem;"></i>Editar
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- ── PAGINATION ── -->
+        <div class="sc-pagination">
+            @Html.PagedListPager(
+                Model,
+                page => Url.Action("Index", new {
+                    page,
+                    marca = ViewBag.MarcaSeleccionada,
+                    orden = ViewBag.OrdenActual,
+                    categoria = ViewBag.CategoriaSeleccionada,
+                    soloStock = ViewBag.SoloStock
+                }),
+                new PagedListRenderOptions {
+                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                    DisplayLinkToIndividualPages = true,
+                    MaximumPageNumbersToDisplay = 5,
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" }
+                })
+        </div>
+
+    </div><!-- /container -->
+</div><!-- /catalogo-page -->
+
+<!-- TABLA OCULTA EXPORTACIÓN — sin cambios -->
+<table id="tablaProductosExport" class="table table-bordered table-sm text-center"
+       style="visibility:hidden; position:absolute; height:0; width:0;">
+    <thead class="table-dark">
+        <tr>
+            <th>Nombre</th><th>Marca</th><th>Categoría</th>
+            <th>Precio</th><th>Descuento</th><th>Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var producto in Model)
+        {
+            <tr>
+                <td>@producto.Nombre</td>
+                <td>@producto.MarcaNombre</td>
+                <td>@producto.CategoriaNombre</td>
+                <td>@producto.Precio.ToString("'₡'#,0")</td>
+                <td>@producto.Descuento.ToString("'₡'#,0")</td>
+                <td>@producto.Stock</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+
+    <script>
+    $(document).ready(function () {
+
+        /* ── DataTable export (lógica original intacta) ── */
+        const table = $('#tablaProductosExport').DataTable({
+            paging: false, searching: false, info: false, ordering: false,
+            dom: 'Bfrtip',
+            buttons: [
+                { extend: 'copyHtml5',  text: 'Copiar', className: 'd-none', attr: { id: 'btnCopy'  } },
+                { extend: 'excelHtml5', text: 'Excel',  className: 'd-none', attr: { id: 'btnExcel' } },
+                { extend: 'csvHtml5',   text: 'CSV',    className: 'd-none', attr: { id: 'btnCsv'   } },
+                {
+                    extend: 'pdfHtml5', text: 'PDF', className: 'd-none', attr: { id: 'btnPdf' },
+                    orientation: 'landscape', pageSize: 'A4',
+                    title: 'Catálogo de Productos - Scentify',
+                    customize: function (doc) {
+                        doc.styles = {
+                            header: { fontSize: 16, bold: true, alignment: 'center', margin: [0,0,0,10] },
+                            tableHeader: { color: 'white', fillColor: '#343a40', alignment: 'center', bold: true, fontSize: 12 },
+                            defaultStyle: { fontSize: 11, font: 'Helvetica' }
+                        };
+                        doc.content[0].text = 'Scentify\nCatálogo de Productos';
+                        doc.content[0].style = 'header';
+                        doc.content[1].table.widths = ['*','*','*','*','*','*'];
+                        doc.content[1].layout = {
+                            hLineWidth: function(){ return 0; }, vLineWidth: function(){ return 0; },
+                            paddingLeft: function(){ return 6; }, paddingRight: function(){ return 6; },
+                            paddingTop: function(){ return 4; }, paddingBottom: function(){ return 4; }
+                        };
+                        doc.content[1].table.body.forEach(function(row){
+                            row.forEach(function(cell){ if(typeof cell==='object') cell.alignment='center'; });
+                        });
+                    }
+                },
+                { extend: 'print', text: 'Imprimir', className: 'd-none', attr: { id: 'btnPrint' } }
+            ]
+        });
+
+        $('.export-btn').on('click', function () {
+            const type = $(this).data('type');
+            if (type==='copy')  $('#btnCopy').click();
+            if (type==='excel') $('#btnExcel').click();
+            if (type==='csv')   $('#btnCsv').click();
+            if (type==='pdf')   $('#btnPdf').click();
+            if (type==='print') $('#btnPrint').click();
+        });
+
+        /* ── Carrito AJAX (lógica original intacta) ── */
+        function showToast(msg, isError) {
+            const t = document.getElementById('sc-toast');
+            t.textContent = (isError ? '✕ ' : '✦ ') + msg;
+            t.className = isError ? 'show error' : 'show';
+            setTimeout(() => { t.className = isError ? 'error' : ''; }, 2800);
+        }
+
+        document.querySelectorAll('.btn-agregar-carrito').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const productoID = this.getAttribute('data-producto-id');
+                const cantidad   = this.getAttribute('data-cantidad') || '1';
+                const formData   = new URLSearchParams();
+                formData.append('productoId', productoID);
+                formData.append('cantidad', cantidad);
+
+                fetch('/CarritoCompra/AgregarAjax', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Producto añadido al carrito.', false);
+                    } else {
+                        showToast(data.message || 'No se pudo agregar al carrito.', true);
+                    }
+                })
+                .catch(() => showToast('Error al conectar con el servidor.', true));
+            });
+        });
+    });
+    </script>
+}

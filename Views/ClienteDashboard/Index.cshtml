@@ -1,0 +1,447 @@
+@{
+    ViewData["Title"] = "Mi Dashboard";
+    var pedidos = ViewBag.Pedidos as List<Scentify.Models.Pedido>;
+    var masComprados = ViewBag.MasComprados;
+    var nombreUsuario = ViewBag.NombreUsuario as string;
+}
+
+<style>
+    :root {
+        --gold: #C9A84C;
+        --gold-light: #E8D5A3;
+        --black: #080808;
+        --card-bg: #0f0f0f;
+        --card-border: rgba(201,168,76,0.15);
+        --white: #F8F4EE;
+        --muted: rgba(248,244,238,0.38);
+    }
+
+    #dashboard-page {
+        background: var(--black);
+        min-height: 100vh;
+        padding: 4rem 0 7rem;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 300;
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* subtle background glow */
+        #dashboard-page::before {
+            content: '';
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 500px;
+            background: radial-gradient(ellipse, rgba(201,168,76,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+    .db-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── HERO GREETING ── */
+    .db-hero {
+        text-align: center;
+        padding: 0 2rem 4rem;
+        border-bottom: 1px solid var(--card-border);
+        margin-bottom: 4rem;
+    }
+
+    .db-eyebrow {
+        font-size: 0.52rem;
+        letter-spacing: 0.6em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+        .db-eyebrow::before, .db-eyebrow::after {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(201,168,76,0.4));
+        }
+
+        .db-eyebrow::before {
+            background: linear-gradient(to left, transparent, rgba(201,168,76,0.4));
+        }
+
+    .db-greeting {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 300;
+        color: var(--white);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+        .db-greeting em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+    .db-greeting-sub {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        margin-top: 1rem;
+    }
+
+    /* ── STATS ROW ── */
+    .db-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--card-border);
+        border: 1px solid var(--card-border);
+        margin-bottom: 4rem;
+    }
+
+    .db-stat {
+        background: var(--card-bg);
+        padding: 2rem 2.5rem;
+        text-align: center;
+        transition: background 0.3s;
+    }
+
+        .db-stat:hover {
+            background: #141414;
+        }
+
+    .db-stat-number {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 3rem;
+        font-weight: 300;
+        color: var(--gold);
+        line-height: 1;
+        margin-bottom: 0.4rem;
+    }
+
+    .db-stat-label {
+        font-size: 0.52rem;
+        letter-spacing: 0.4em;
+        color: var(--muted);
+        text-transform: uppercase;
+    }
+
+    /* ── SECTION LABEL ── */
+    .db-section-label {
+        font-size: 0.52rem;
+        letter-spacing: 0.6em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+        .db-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--card-border), transparent);
+        }
+
+    /* ── CARDS ── */
+    .db-cards-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--card-border);
+        border: 1px solid var(--card-border);
+        margin-bottom: 4rem;
+    }
+
+    .db-card {
+        background: var(--card-bg);
+        padding: 0;
+    }
+
+    .db-card-header {
+        padding: 1.3rem 2rem;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .db-card-header-icon {
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--card-border);
+        background: rgba(201,168,76,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .db-card-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.2rem;
+        font-weight: 300;
+        color: var(--white);
+        margin: 0;
+    }
+
+    /* list */
+    .db-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .db-list-item {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid rgba(201,168,76,0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+        .db-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .db-list-item:hover {
+            background: rgba(255,255,255,0.015);
+        }
+
+    .db-list-text {
+        font-size: 0.62rem;
+        letter-spacing: 0.05em;
+        color: rgba(248,244,238,0.55);
+    }
+
+    .db-list-badge {
+        font-size: 0.52rem;
+        letter-spacing: 0.15em;
+        color: var(--gold);
+        border: 1px solid rgba(201,168,76,0.3);
+        padding: 0.2rem 0.7rem;
+        text-transform: uppercase;
+        background: rgba(201,168,76,0.05);
+        white-space: nowrap;
+    }
+
+        .db-list-badge.qty {
+            color: rgba(248,244,238,0.5);
+            border-color: rgba(248,244,238,0.1);
+            background: rgba(255,255,255,0.03);
+        }
+
+    .db-empty {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+        .db-empty p {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            color: rgba(248,244,238,0.2);
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .db-empty i {
+            font-size: 1.5rem;
+            color: rgba(201,168,76,0.15);
+            display: block;
+            margin-bottom: 0.8rem;
+        }
+
+    /* ── QUICK ACCESS ── */
+    .db-quick {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1px;
+        background: var(--card-border);
+        border: 1px solid var(--card-border);
+    }
+
+    .db-quick-item {
+        background: var(--card-bg);
+        padding: 2rem;
+        text-align: center;
+        text-decoration: none;
+        transition: background 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+        .db-quick-item:hover {
+            background: #141414;
+        }
+
+    .db-quick-icon {
+        width: 48px;
+        height: 48px;
+        border: 1px solid var(--card-border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+
+    .db-quick-item:hover .db-quick-icon {
+        background: rgba(201,168,76,0.08);
+        border-color: var(--gold);
+    }
+
+    .db-quick-label {
+        font-size: 0.55rem;
+        letter-spacing: 0.3em;
+        color: var(--muted);
+        text-transform: uppercase;
+        transition: color 0.3s;
+    }
+
+    .db-quick-item:hover .db-quick-label {
+        color: var(--gold);
+    }
+
+    @@media (max-width: 768px) {
+        .db-cards-row {
+            grid-template-columns: 1fr;
+        }
+
+        .db-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .db-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div id="dashboard-page">
+    <div class="db-inner container-fluid px-4 px-md-5">
+
+        <!-- ── GREETING ── -->
+        <div class="db-hero">
+            <div class="db-eyebrow">Mi espacio personal</div>
+            <h1 class="db-greeting">Hola, <em>@nombreUsuario</em></h1>
+            <p class="db-greeting-sub">Bienvenido de vuelta · Tu resumen está listo</p>
+        </div>
+
+        <!-- ── STATS ── -->
+        <div class="db-stats mb-5">
+            <div class="db-stat">
+                <div class="db-stat-number">@(ViewBag.TotalPedidos ?? 0)</div>
+                <div class="db-stat-label">Pedidos totales</div>
+            </div>
+            <div class="db-stat">
+                <div class="db-stat-number">@(ViewBag.EnProceso ?? 0)</div>
+                <div class="db-stat-label">En proceso</div>
+            </div>
+            <div class="db-stat">
+                <div class="db-stat-number">@(ViewBag.TotalProductosComprados ?? 0)</div>
+                <div class="db-stat-label">Productos comprados</div>
+            </div>
+        </div>
+
+        <!-- ── PEDIDOS + MÁS COMPRADOS ── -->
+        <div class="db-section-label">Actividad reciente</div>
+
+        <div class="db-cards-row">
+
+            <!-- Pedidos recientes -->
+            <div class="db-card">
+                <div class="db-card-header">
+                    <div class="db-card-header-icon"><i class="fas fa-box"></i></div>
+                    <h2 class="db-card-title">Pedidos Recientes</h2>
+                </div>
+                @if (pedidos == null || pedidos.Count == 0)
+                {
+                    <div class="db-empty">
+                        <i class="fas fa-box-open"></i>
+                        <p>No tienes pedidos aún</p>
+                    </div>
+                }
+                else
+                {
+                    <ul class="db-list">
+                        @foreach (var pedido in pedidos)
+                        {
+                            <li class="db-list-item">
+                                <span class="db-list-text">
+                                    Pedido #@pedido.PedidoID &nbsp;·&nbsp; @pedido.FechaPedido.ToShortDateString()
+                                </span>
+                                <span class="db-list-badge">@pedido.Estado</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            <!-- Más comprados -->
+            <div class="db-card">
+                <div class="db-card-header">
+                    <div class="db-card-header-icon"><i class="fas fa-star"></i></div>
+                    <h2 class="db-card-title">Más Comprados</h2>
+                </div>
+                @if (masComprados == null || !Enumerable.Any(masComprados))
+                {
+                    <div class="db-empty">
+                        <i class="fas fa-shopping-bag"></i>
+                        <p>Aún no has comprado productos</p>
+                    </div>
+                }
+                else
+                {
+                    <ul class="db-list">
+                        @foreach (var item in masComprados)
+                        {
+                            <li class="db-list-item">
+                                <span class="db-list-text">@item.Producto</span>
+                                <span class="db-list-badge qty">×@item.Cantidad</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+        </div>
+
+        <!-- ── ACCESOS RÁPIDOS ── -->
+        <div class="db-section-label">Accesos rápidos</div>
+
+        <div class="db-quick">
+            <a class="db-quick-item" asp-controller="CarritoCompra" asp-action="Index">
+                <div class="db-quick-icon"><i class="fas fa-shopping-bag"></i></div>
+                <span class="db-quick-label">Mi Carrito</span>
+            </a>
+            <a class="db-quick-item" asp-controller="Pedido" asp-action="Index">
+                <div class="db-quick-icon"><i class="fas fa-box"></i></div>
+                <span class="db-quick-label">Mis Pedidos</span>
+            </a>
+            <a class="db-quick-item" asp-controller="Producto" asp-action="Index">
+                <div class="db-quick-icon"><i class="fas fa-wind"></i></div>
+                <span class="db-quick-label">Catálogo</span>
+            </a>
+        </div>
+
+    </div>
+</div>

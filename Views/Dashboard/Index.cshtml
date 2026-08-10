@@ -1,0 +1,383 @@
+﻿@model Scentify.Models.DashboardViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Dashboard Administrativo";
+}
+
+<style>
+    /* ── ESTILOS LUXURY PANEL ADMIN - DASHBOARD ── */
+    .lux-container {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--scent-white, #F8F4EE);
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .lux-header-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.5rem;
+        color: var(--gold, #C9A84C);
+        letter-spacing: 0.1em;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+        padding-bottom: 1rem;
+    }
+
+    .lux-card {
+        background: rgba(10, 10, 10, 0.8);
+        border: 1px solid var(--glass-border, rgba(201, 168, 76, 0.22));
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .lux-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(201, 168, 76, 0.15);
+        border-color: rgba(201, 168, 76, 0.4);
+    }
+
+    .lux-card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .lux-stat-title {
+        font-size: 0.8rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(248, 244, 238, 0.6);
+        margin-bottom: 0.5rem;
+    }
+
+    .lux-stat-value {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: var(--gold-light, #E8D5A3);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .lux-chart-container {
+        padding: 1.5rem;
+        background: rgba(10, 10, 10, 0.6);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .lux-section-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+        color: var(--gold);
+        letter-spacing: 0.05em;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    /* Tabla Lux */
+    .lux-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: rgba(10, 10, 10, 0.8);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .lux-table th {
+        background: rgba(0, 0, 0, 0.5) !important;
+        color: var(--gold) !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-weight: 500;
+        border-bottom: 1px solid var(--glass-border) !important;
+        padding: 1.2rem 1rem;
+        text-align: center;
+    }
+
+    .lux-table td {
+        background: transparent !important;
+        color: var(--scent-white) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+        padding: 1rem;
+        font-size: 0.95rem;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .lux-table tr:last-child td {
+        border-bottom: none !important;
+    }
+</style>
+
+<div class="lux-container">
+    <h2 class="lux-header-title">Dashboard Administrativo</h2>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="lux-card">
+                <div class="lux-card-body">
+                    <h6 class="lux-stat-title">Total Ventas</h6>
+                    <h4 class="lux-stat-value" style="color: #75b798;">@Model.TotalVentas.ToString("C",
+                        CultureInfo.CreateSpecificCulture("es-CR"))</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="lux-card">
+                <div class="lux-card-body">
+                    <h6 class="lux-stat-title">Producto Más Vendido</h6>
+                    <h4 class="lux-stat-value"
+                        style="font-size: 1.5rem; font-family: 'Montserrat', sans-serif; font-weight: 500;">
+                        @Model.ProductoMasVendido</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="lux-card">
+                <div class="lux-card-body">
+                    <h6 class="lux-stat-title">Productos Vendidos</h6>
+                    <h4 class="lux-stat-value">@Model.TotalProductosVendidos</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="lux-card">
+                <div class="lux-card-body">
+                    <h6 class="lux-stat-title">Pedidos Totales</h6>
+                    <h4 class="lux-stat-value">@Model.TotalPedidos</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <h5 class="lux-section-title">Ventas por Mes</h5>
+            <div class="lux-chart-container">
+                <canvas id="ventasMesChart" height="280"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h5 class="lux-section-title">Usuarios Top Compradores</h5>
+            <div class="lux-chart-container">
+                <canvas id="usuariosCompradoresChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 pt-3">
+        <div class="col-12">
+            <h5 class="lux-section-title">Top 5 Productos Más Vendidos</h5>
+            <div class="table-responsive">
+                <table class="lux-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left; padding-left: 2rem;">Producto</th>
+                            <th>Cantidad Vendida</th>
+                            <th>Total Generado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TopProductos)
+                        {
+                            <tr>
+                                <td style="text-align:left; padding-left: 2rem; color:var(--gold-light);">@item.Nombre</td>
+                                <td>@item.CantidadVendida</td>
+                                <td style="color: #75b798; font-weight: 500;">@item.TotalGenerado.ToString("C", new
+                                CultureInfo("es-CR"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-5 pt-2">
+        <div class="col-md-6">
+            <h5 class="lux-section-title">Ventas por Categoría</h5>
+            <div class="lux-chart-container">
+                <canvas id="ventasCategoriaChart" height="280"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h5 class="lux-section-title">Top Categorías por Cantidad</h5>
+            <div class="lux-chart-container">
+                <canvas id="categoriasTopChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Paleta Luxury
+        const gold = 'rgba(201, 168, 76, 0.8)';
+        const goldBorder = 'rgba(201, 168, 76, 1)';
+        const goldLight = 'rgba(232, 213, 163, 0.8)';
+        const mutedGold = 'rgba(201, 168, 76, 0.3)';
+        const textWhite = '#F8F4EE';
+        const textMuted = 'rgba(248, 244, 238, 0.6)';
+        const gridLines = 'rgba(255, 255, 255, 0.05)';
+
+        // Paleta extendida para gráficos de pie/doughnut (tonos dorados/cobrizos/grises)
+        const luxuryPalette = [
+            'rgba(201, 168, 76, 0.8)',   // Gold
+            'rgba(166, 124, 0, 0.8)',    // Dark Gold
+            'rgba(232, 213, 163, 0.8)',  // Light Gold
+            'rgba(115, 115, 115, 0.8)',  // Gray
+            'rgba(189, 147, 84, 0.8)',   // Copper
+            'rgba(89, 89, 89, 0.8)'      // Dark Gray
+        ];
+
+        const luxuryBorders = [
+            '#C9A84C', '#A67C00', '#E8D5A3', '#737373', '#BD9354', '#595959'
+        ];
+
+        // Configuración global de fuentes para Chart.js
+        Chart.defaults.color = textMuted;
+        Chart.defaults.font.family = "'Montserrat', sans-serif";
+        Chart.defaults.plugins.legend.labels.color = textWhite;
+
+        // Ventas por Mes
+        new Chart(document.getElementById('ventasMesChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.VentasMesLabels)),
+                datasets: [{
+                    label: 'Ingresos por mes',
+                    data: @Html.Raw(Json.Serialize(Model.VentasMesValores)),
+                    backgroundColor: gold,
+                    borderColor: goldBorder,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: gridLines, drawBorder: false },
+                        ticks: { color: textMuted }
+                    },
+                    y: {
+                        grid: { color: gridLines, drawBorder: false },
+                        ticks: {
+                            color: textMuted,
+                            callback: value => '₡' + value.toLocaleString()
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Usuarios que más han comprado
+        new Chart(document.getElementById('usuariosCompradoresChart'), {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.UsuariosLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.UsuariosMontos)),
+                    backgroundColor: luxuryPalette,
+                    borderColor: 'rgba(10,10,10,1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Ventas por Categoría
+        new Chart(document.getElementById('ventasCategoriaChart'), {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CategoriasLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.CategoriasVentas)),
+                    backgroundColor: luxuryPalette,
+                    borderColor: 'rgba(10,10,10,1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Top Categorías por Cantidad Vendida
+        new Chart(document.getElementById('categoriasTopChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CategoriasTopLabels)),
+                datasets: [{
+                    label: 'Cantidad',
+                    data: @Html.Raw(Json.Serialize(Model.CategoriasTopCantidad)),
+                    backgroundColor: goldLight,
+                    borderColor: goldBorder,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: gridLines, drawBorder: false },
+                        ticks: { color: textMuted }
+                    },
+                    y: {
+                        grid: { color: gridLines, drawBorder: false },
+                        ticks: { color: textMuted }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}
