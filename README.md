@@ -2,7 +2,6 @@
 
 <img src="wwwroot/Images/Logo.png" alt="Logo de Scentify" width="180">
 
-# Scentify
 
 ### Sistema web para la gestión y comercialización de perfumes
 
